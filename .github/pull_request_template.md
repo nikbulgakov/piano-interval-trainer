@@ -12,7 +12,8 @@
 - [ ] `npm run typecheck`
 - [ ] `npm run lint`
 - [ ] `npm run build`
-- [ ] Cloudflare Pages Preview собран и открыт по HTTPS
+- [ ] Vercel Preview и Cloudflare Pages Preview собраны
+- [ ] Vercel Preview открыт по HTTPS
 - [ ] Выполнена ручная проверка затронутого сценария
 
 ## Дополнительно

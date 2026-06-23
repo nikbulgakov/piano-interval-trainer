@@ -7,7 +7,7 @@
 3. Обновить тесты и документацию, если изменилось поведение.
 4. Выполнить локальные проверки.
 5. Создать небольшой осмысленный коммит и открыть draft pull request.
-6. Проверить GitHub Actions и Cloudflare Pages Preview.
+6. Проверить GitHub Actions, Vercel Preview и Cloudflare Pages Preview.
 7. Перевести pull request в ready только после успешных проверок и ручной приёмки preview.
 
 ## Команды проверки
@@ -30,7 +30,7 @@ npm run build
 
 - поведение соответствует `docs/PRODUCT.md`;
 - тесты и CI проходят;
-- Cloudflare Pages Preview собран и открывается по HTTPS;
+- Vercel Preview и Cloudflare Pages Preview собраны; Vercel Preview открывается по HTTPS;
 - MIDI-сценарии проверены вручную, если изменение касается ввода;
 - pull request объясняет, что изменено, зачем и как проверено;
 - в diff нет секретов, артефактов сборки и несвязанных файлов.

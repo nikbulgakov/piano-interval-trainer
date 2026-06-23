@@ -183,14 +183,14 @@ UI получает нормализованные события вида `{ ty
 
 ## 11. Сборка и публикация
 
-Vite создаёт статический каталог `dist/`. Production размещён в Cloudflare Pages по адресу `https://piano-interval-trainer.pages.dev`.
+Vite создаёт статический каталог `dist/`. Основной production размещён в Vercel по адресу `https://piano-interval-trainer.vercel.app`, резервный — в Cloudflare Pages по адресу `https://piano-interval-trainer.pages.dev`.
 
-Cloudflare собирает проект из GitHub:
+Оба хостинга собирают проект из GitHub:
 
 - production-ветка — `main`;
 - команда — `npm run build`;
 - каталог результата — `dist`;
-- версия Node.js — 24 через `NODE_VERSION`;
-- ветки pull request получают отдельные preview-деплои.
+- версия Node.js — 24.x;
+- ветки pull request получают отдельные preview-деплои в обоих хостингах.
 
-GitHub Actions и Cloudflare Pages работают независимо: первый проверяет тесты, типы, lint и production build, второй подтверждает реальную публикацию статики. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.
+GitHub Actions, Vercel и Cloudflare Pages работают независимо: CI проверяет тесты, типы, lint и production build, а два хостинга подтверждают реальную публикацию статики. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.
