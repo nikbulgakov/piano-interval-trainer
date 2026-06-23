@@ -183,6 +183,14 @@ UI получает нормализованные события вида `{ ty
 
 ## 11. Сборка и публикация
 
-Vite создаёт статический каталог `dist/`. Его можно разместить на любом HTTPS static host. Для первой разработки и ручной проверки достаточно dev server на `localhost`.
+Vite создаёт статический каталог `dist/`. Production размещён в Cloudflare Pages по адресу `https://piano-interval-trainer.pages.dev`.
 
-Отдельное решение о конкретном хостинге принимается после стабильного локального MVP.
+Cloudflare собирает проект из GitHub:
+
+- production-ветка — `main`;
+- команда — `npm run build`;
+- каталог результата — `dist`;
+- версия Node.js — 24 через `NODE_VERSION`;
+- ветки pull request получают отдельные preview-деплои.
+
+GitHub Actions и Cloudflare Pages работают независимо: первый проверяет тесты, типы, lint и production build, второй подтверждает реальную публикацию статики. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.

@@ -12,6 +12,7 @@
 - [ ] `npm run typecheck`
 - [ ] `npm run lint`
 - [ ] `npm run build`
+- [ ] Cloudflare Pages Preview собран и открыт по HTTPS
 - [ ] Выполнена ручная проверка затронутого сценария
 
 ## Дополнительно
