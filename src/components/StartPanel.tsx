@@ -1,4 +1,8 @@
-import { getIntervalInfo, getPitchClassInfo } from "../domain/music";
+import {
+  formatIntervalName,
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
 import {
   isTrainingConfigValid,
   type TrainingConfig,
@@ -9,22 +13,25 @@ type StartPanelProps = {
   config: TrainingConfig;
   midiStatus: MidiStatus;
   onStart: () => void;
+  preferences: AppPreferences;
 };
 
 export function StartPanel({
   config,
   midiStatus,
   onStart,
+  preferences,
 }: StartPanelProps) {
   const configIsValid = isTrainingConfigValid(config);
   const midiIsReady = midiStatus === "ready";
   const canStart = configIsValid && midiIsReady;
   const noteNames = config.pitchClasses
-    .map((pitchClass) => getPitchClassInfo(pitchClass).russianName)
+    .map((pitchClass) => formatNoteName(pitchClass, preferences.noteNotation))
     .join(", ");
   const intervalNames = config.intervalSemitones
-    .map((semitones) => getIntervalInfo(semitones)?.shortName)
-    .filter(Boolean)
+    .map((semitones) =>
+      formatIntervalName(semitones, preferences.intervalNotation),
+    )
     .join(", ");
 
   let readinessMessage = "Все готово к тренировке.";

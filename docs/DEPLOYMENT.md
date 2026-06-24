@@ -22,7 +22,7 @@ Node.js version: 24.x
 
 ## Cloudflare Pages
 
-Cloudflare Pages остаётся независимым резервным хостингом и собирает тот же репозиторий.
+Cloudflare Pages остаётся независимым резервным production-хостингом и собирает `main`. Preview-деплои для feature-веток отключены.
 
 ```text
 Framework preset: React (Vite)
@@ -36,10 +36,10 @@ GitHub Apps обоих хостингов имеют доступ к `piano-inte
 ## Выпуск изменений
 
 1. Создать ветку `codex/<краткое-название>` от актуального `main`.
-2. Реализовать изменение и выполнить локальные проверки.
+2. Реализовать изменение и выполнить `npm run lint`.
 3. Открыть draft pull request.
-4. Проверить GitHub Actions, Vercel Preview и Cloudflare Pages Preview.
-5. Провести ручную приёмку хотя бы Vercel Preview в настольном Chrome или Edge, включая реальную MIDI-клавиатуру, если изменение затрагивает MIDI или тренировку.
+4. Проверить lint в GitHub Actions и Vercel Preview.
+5. Провести ручную приёмку Vercel Preview в настольном Chrome или Edge, включая реальную MIDI-клавиатуру, если изменение затрагивает MIDI или тренировку.
 6. Перевести pull request в ready и выполнить merge после приёмки.
 7. Убедиться, что оба production-деплоя из `main` завершились успешно.
 

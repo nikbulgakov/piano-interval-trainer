@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PracticeScreen } from "../components/PracticeScreen";
 import { ResultsScreen } from "../components/ResultsScreen";
+import { SettingsScreen } from "../components/SettingsScreen";
 import { SetupScreen } from "../components/SetupScreen";
 import type { SessionSummary } from "../domain/sessionSummary";
 import {
@@ -8,13 +9,22 @@ import {
   type TrainingConfig,
 } from "../domain/trainingConfig";
 import { useMidiInput } from "../midi/useMidiInput";
+import {
+  loadAppPreferences,
+  saveAppPreferences,
+  type AppPreferences,
+} from "./appPreferences";
 
 type ScreenState =
   | { kind: "setup" }
+  | { kind: "settings" }
   | { kind: "practice"; config: TrainingConfig }
   | { kind: "results"; summary: SessionSummary };
 
 export function App() {
+  const [preferences, setPreferences] = useState<AppPreferences>(
+    loadAppPreferences,
+  );
   const [trainingConfig, setTrainingConfig] = useState<TrainingConfig>(() => ({
     ...DEFAULT_TRAINING_CONFIG,
     pitchClasses: [...DEFAULT_TRAINING_CONFIG.pitchClasses],
@@ -30,6 +40,10 @@ export function App() {
     activeNotes,
     connect,
   } = useMidiInput();
+
+  useEffect(() => {
+    saveAppPreferences(preferences);
+  }, [preferences]);
 
   const startPractice = useCallback(() => {
     setScreen({
@@ -50,6 +64,16 @@ export function App() {
     setScreen({ kind: "setup" });
   }, []);
 
+  if (screen.kind === "settings") {
+    return (
+      <SettingsScreen
+        onBack={returnToSetup}
+        onChange={setPreferences}
+        preferences={preferences}
+      />
+    );
+  }
+
   if (screen.kind === "practice") {
     return (
       <PracticeScreen
@@ -58,6 +82,7 @@ export function App() {
         midiStatus={status}
         onFinish={finishPractice}
         onReturnToSetup={returnToSetup}
+        preferences={preferences}
       />
     );
   }
@@ -78,7 +103,9 @@ export function App() {
       onConfigChange={setTrainingConfig}
       onConnectMidi={connect}
       onSelectInput={setSelectedInputId}
+      onOpenSettings={() => setScreen({ kind: "settings" })}
       onStart={startPractice}
+      preferences={preferences}
       selectedInputId={selectedInputId}
     />
   );

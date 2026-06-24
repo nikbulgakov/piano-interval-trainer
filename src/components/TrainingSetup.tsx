@@ -1,5 +1,10 @@
 import { INTERVALS, PITCH_CLASSES } from "../domain/music";
 import {
+  formatIntervalName,
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
+import {
   validateTrainingConfig,
   type TrainingConfig,
 } from "../domain/trainingConfig";
@@ -7,9 +12,14 @@ import {
 type TrainingSetupProps = {
   config: TrainingConfig;
   onChange: (config: TrainingConfig) => void;
+  preferences: AppPreferences;
 };
 
-export function TrainingSetup({ config, onChange }: TrainingSetupProps) {
+export function TrainingSetup({
+  config,
+  onChange,
+  preferences,
+}: TrainingSetupProps) {
   const errors = validateTrainingConfig(config);
 
   const togglePitchClass = (pitchClass: (typeof PITCH_CLASSES)[number]["value"]) => {
@@ -87,8 +97,7 @@ export function TrainingSetup({ config, onChange }: TrainingSetupProps) {
                 onClick={() => togglePitchClass(note.value)}
                 type="button"
               >
-                <span>{note.russianName}</span>
-                <small>{note.latinName}</small>
+                <span>{formatNoteName(note.value, preferences.noteNotation)}</span>
               </button>
             );
           })}
@@ -144,8 +153,12 @@ export function TrainingSetup({ config, onChange }: TrainingSetupProps) {
                 onClick={() => toggleInterval(interval.semitones)}
                 type="button"
               >
-                <span>{interval.russianName}</span>
-                <small>{interval.shortName}</small>
+                <span>
+                  {formatIntervalName(
+                    interval.semitones,
+                    preferences.intervalNotation,
+                  )}
+                </span>
               </button>
             );
           })}

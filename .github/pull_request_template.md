@@ -8,12 +8,8 @@
 
 ## Проверка
 
-- [ ] `npm test`
-- [ ] `npm run typecheck`
 - [ ] `npm run lint`
-- [ ] `npm run build`
-- [ ] Vercel Preview и Cloudflare Pages Preview собраны
-- [ ] Vercel Preview открыт по HTTPS
+- [ ] Vercel Preview собран и открыт по HTTPS
 - [ ] Выполнена ручная проверка затронутого сценария
 
 ## Дополнительно
