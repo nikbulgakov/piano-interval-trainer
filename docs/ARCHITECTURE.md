@@ -196,15 +196,14 @@ UI получает нормализованные события вида `{ ty
 
 ## 11. Сборка и публикация
 
-Vite создаёт статический каталог `dist/`. Основной production размещён в Vercel по адресу `https://piano-interval-trainer.vercel.app`, резервный — в Cloudflare Pages по адресу `https://piano-interval-trainer.pages.dev`.
+Vite создаёт статический каталог `dist/`. Production размещён в Vercel по адресу `https://piano-interval-trainer.vercel.app`.
 
-Оба хостинга собирают проект из GitHub:
+Vercel собирает проект из GitHub:
 
 - production-ветка — `main`;
 - команда — `npm run build`;
 - каталог результата — `dist`;
 - версия Node.js — 24.x;
-- ветки pull request получают отдельные preview-деплои только в Vercel;
-- Cloudflare Pages публикует только production из `main`.
+- ветки pull request получают отдельные preview-деплои.
 
-GitHub Actions запускает обязательный lint. Vercel Preview подтверждает сборку и даёт URL для ручной приёмки. После merge Vercel и Cloudflare Pages независимо публикуют production. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.
+GitHub Actions запускает обязательный lint. Vercel Preview подтверждает сборку и даёт URL для ручной приёмки. После merge Vercel публикует production. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.
