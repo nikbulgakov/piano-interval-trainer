@@ -40,6 +40,7 @@ src/
 │   ├── App.tsx
 │   └── appPreferences.ts
 ├── components/
+│   ├── HomeScreen.tsx
 │   ├── MidiConnectionCard.tsx
 │   ├── TrainingSetup.tsx
 │   ├── StartPanel.tsx
@@ -66,6 +67,16 @@ src/
 ```
 
 Структура может немного меняться при реализации, но разделение `domain`, `midi` и UI обязательно.
+
+Навигация остаётся небольшой машиной состояний внутри `App`:
+
+```text
+home ─► interval-setup ─► practice ─► results
+  │              │                         │
+  └─ settings ◄──┘                         └─► interval-setup
+```
+
+Экран настроек хранит точку возврата: `home` или `interval-setup`. Router не нужен, потому что URL-маршруты и прямые ссылки на внутренние экраны не являются требованием. MIDI adapter и конфигурация тренировки принадлежат `App`, поэтому переход на главный экран не сбрасывает подключение и выбранные параметры.
 
 ## 4. Основные модели
 
@@ -117,7 +128,7 @@ type Task = {
 Минимальная машина состояний последовательной сессии:
 
 ```text
-setup
+interval-setup
   └─ start ─► practice / waiting-for-release
                     └─ all keys released ─► awaiting-answer
                           ├─ wrong chord ─► error + attempt locked

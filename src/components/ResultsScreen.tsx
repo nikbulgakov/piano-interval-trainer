@@ -51,7 +51,7 @@ export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
         </dl>
 
         <button className="primary-button results-button" onClick={onReturn} type="button">
-          Вернуться к настройкам
+          К настройке интервалов
         </button>
       </section>
     </main>
