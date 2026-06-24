@@ -192,12 +192,6 @@ h2 {
   transform: translateY(-2px);
 }
 
-.training-mode-card.is-coming {
-  color: #65736c;
-  background: #f2f5f3;
-  cursor: not-allowed;
-}
-
 .training-mode-status {
   padding: 7px 10px;
   border-radius: 999px;
@@ -207,11 +201,6 @@ h2 {
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.is-coming .training-mode-status {
-  color: #6d7772;
-  background: #e4e9e6;
 }
 
 .training-mode-symbol {
@@ -242,10 +231,6 @@ h2 {
   color: #276748;
   font-size: 0.78rem;
   font-weight: 850;
-}
-
-.is-coming .training-mode-action {
-  color: #818b86;
 }
 
 .settings-card {
@@ -499,6 +484,32 @@ h2 {
   border-top: 1px solid #e3e9e5;
 }
 
+.note-session-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.65fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.note-mode-summary {
+  display: grid;
+  gap: 7px;
+  padding: 15px;
+  border-radius: 12px;
+  color: #28352f;
+  background: #edf5f0;
+}
+
+.note-mode-summary strong {
+  font-size: 0.82rem;
+}
+
+.note-mode-summary span {
+  color: #718079;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .compact-group {
   margin-top: 0;
 }
@@ -554,6 +565,11 @@ h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
+}
+
+.single-number-field {
+  grid-template-columns: 1fr;
+  margin-top: 0;
 }
 
 .number-field {
@@ -1005,6 +1021,13 @@ button:focus-visible {
   font-size: 0.65em;
 }
 
+.note-practice-hint {
+  margin: 14px 0 0;
+  color: #bcd8cb;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .prompt-countdown {
   margin: 16px 0 0;
   padding: 7px 11px;
@@ -1095,6 +1118,10 @@ button:focus-visible {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
   margin: 30px 0 0;
+}
+
+.results-grid.without-misses {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .results-grid div {
@@ -1210,6 +1237,10 @@ button:focus-visible {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .note-session-settings {
+    grid-template-columns: 1fr;
+  }
+
   .settings-screen {
     width: min(100% - 24px, 860px);
   }
@@ -1285,7 +1316,8 @@ button:focus-visible {
     padding: 26px 20px;
   }
 
-  .results-grid {
+  .results-grid,
+  .results-grid.without-misses {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

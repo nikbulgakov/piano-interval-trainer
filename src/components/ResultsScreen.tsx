@@ -5,9 +5,18 @@ import { formatDuration } from "../domain/time";
 type ResultsScreenProps = {
   summary: SessionSummary;
   onReturn: () => void;
+  returnLabel: string;
+  exerciseLabel: string;
+  showMissedTasks: boolean;
 };
 
-export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
+export function ResultsScreen({
+  summary,
+  onReturn,
+  returnLabel,
+  exerciseLabel,
+  showMissedTasks,
+}: ResultsScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -17,7 +26,7 @@ export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
   return (
     <main className="results-shell">
       <section className="results-card" aria-labelledby="results-title">
-        <p className="eyebrow">Тренировка завершена</p>
+        <p className="eyebrow">{exerciseLabel}</p>
         <h1 id="results-title" ref={titleRef} tabIndex={-1}>
           Результат
         </h1>
@@ -27,7 +36,9 @@ export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
             : "Запланированное время истекло."}
         </p>
 
-        <dl className="results-grid">
+        <dl
+          className={`results-grid${showMissedTasks ? "" : " without-misses"}`}
+        >
           <div>
             <dt>Время</dt>
             <dd>{formatDuration(summary.elapsedSeconds * 1000)}</dd>
@@ -40,10 +51,12 @@ export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
             <dt>Ошибки</dt>
             <dd>{summary.wrongAttempts}</dd>
           </div>
-          <div>
-            <dt>Пропуски</dt>
-            <dd>{summary.missedTasks}</dd>
-          </div>
+          {showMissedTasks && (
+            <div>
+              <dt>Пропуски</dt>
+              <dd>{summary.missedTasks}</dd>
+            </div>
+          )}
           <div>
             <dt>Точность</dt>
             <dd>{summary.accuracyPercent}%</dd>
@@ -51,7 +64,7 @@ export function ResultsScreen({ summary, onReturn }: ResultsScreenProps) {
         </dl>
 
         <button className="primary-button results-button" onClick={onReturn} type="button">
-          К настройке интервалов
+          {returnLabel}
         </button>
       </section>
     </main>

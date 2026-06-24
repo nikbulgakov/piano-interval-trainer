@@ -2,11 +2,13 @@ import { useEffect, useRef } from "react";
 
 type HomeScreenProps = {
   onOpenIntervalTraining: () => void;
+  onOpenNoteTraining: () => void;
   onOpenSettings: () => void;
 };
 
 export function HomeScreen({
   onOpenIntervalTraining,
+  onOpenNoteTraining,
   onOpenSettings,
 }: HomeScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -66,11 +68,11 @@ export function HomeScreen({
           </button>
 
           <button
-            className="training-mode-card is-coming"
-            disabled
+            className="training-mode-card is-available"
+            onClick={onOpenNoteTraining}
             type="button"
           >
-            <span className="training-mode-status">Скоро</span>
+            <span className="training-mode-status">Доступно</span>
             <span aria-hidden="true" className="training-mode-symbol">
               До
             </span>
@@ -78,7 +80,7 @@ export function HomeScreen({
             <span className="training-mode-description">
               Находите на клавиатуре одну ноту, показанную в задании.
             </span>
-            <span className="training-mode-action">Следующий спринт</span>
+            <span className="training-mode-action">Настроить тренировку →</span>
           </button>
         </div>
       </section>
