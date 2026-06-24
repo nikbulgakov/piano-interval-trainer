@@ -1,4 +1,8 @@
 import {
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
+import {
   getKeyboardNotes,
   PRACTICE_MAX_NOTE,
   PRACTICE_MIN_NOTE,
@@ -6,6 +10,7 @@ import {
 
 type PianoKeyboardProps = {
   activeNotes: ReadonlySet<number>;
+  preferences: AppPreferences;
 };
 
 const keyboardNotes = getKeyboardNotes();
@@ -20,12 +25,12 @@ function getBlackKeyPosition(midiNote: number): number {
   return (whiteKeysBefore / whiteNotes.length) * 100;
 }
 
-export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
+export function PianoKeyboard({ activeNotes, preferences }: PianoKeyboardProps) {
   const activeNoteNames = keyboardNotes
     .filter((note) => activeNotes.has(note.midiNote))
     .map(
       (note) =>
-        `${note.russianName} (${note.latinName}), MIDI ${note.midiNote}`,
+        `${formatNoteName(note.pitchClass, preferences.noteNotation)}, MIDI ${note.midiNote}`,
     );
 
   return (
@@ -56,7 +61,9 @@ export function PianoKeyboard({ activeNotes }: PianoKeyboardProps) {
                 className={`piano-key white-key${isActive ? " is-active" : ""}`}
                 key={note.midiNote}
               >
-                <span>{note.latinName}</span>
+                <span>
+                  {formatNoteName(note.pitchClass, preferences.noteNotation)}
+                </span>
               </div>
             );
           })}

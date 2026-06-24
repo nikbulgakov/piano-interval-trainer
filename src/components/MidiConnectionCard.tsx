@@ -1,5 +1,8 @@
+import {
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
 import { isNoteInPracticeRange } from "../domain/keyboard";
-import { getPitchClassInfo } from "../domain/music";
 import type { MidiInputInfo, MidiStatus } from "../midi/useMidiInput";
 
 type MidiConnectionCardProps = {
@@ -10,6 +13,7 @@ type MidiConnectionCardProps = {
   onSelectInput: (inputId: string) => void;
   activeNotes: ReadonlySet<number>;
   onConnect: () => Promise<void>;
+  preferences: AppPreferences;
 };
 
 const STATUS_TEXT: Record<MidiStatus, string> = {
@@ -43,6 +47,7 @@ export function MidiConnectionCard({
   onSelectInput,
   activeNotes,
   onConnect,
+  preferences,
 }: MidiConnectionCardProps) {
   const visibleActiveNotes = Array.from(activeNotes)
     .filter(isNoteInPracticeRange)
@@ -135,15 +140,12 @@ export function MidiConnectionCard({
         {visibleActiveNotes.length === 0 ? (
           <span className="empty-notes">нет клавиш в диапазоне</span>
         ) : (
-          visibleActiveNotes.map((midiNote) => {
-            const note = getPitchClassInfo(midiNote);
-
-            return (
-              <span className="note-chip" key={midiNote}>
-                {note.russianName} ({note.latinName}) · MIDI {midiNote}
-              </span>
-            );
-          })
+          visibleActiveNotes.map((midiNote) => (
+            <span className="note-chip" key={midiNote}>
+              {formatNoteName(midiNote, preferences.noteNotation)} · MIDI{" "}
+              {midiNote}
+            </span>
+          ))
         )}
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import type { AppPreferences } from "../app/appPreferences";
 import type { TrainingConfig } from "../domain/trainingConfig";
 import type {
   MidiInputInfo,
@@ -19,6 +20,8 @@ type SetupScreenProps = {
   activeNotes: ReadonlySet<number>;
   onConnectMidi: () => Promise<void>;
   onStart: () => void;
+  onOpenSettings: () => void;
+  preferences: AppPreferences;
 };
 
 export function SetupScreen({
@@ -32,6 +35,8 @@ export function SetupScreen({
   activeNotes,
   onConnectMidi,
   onStart,
+  onOpenSettings,
+  preferences,
 }: SetupScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -52,7 +57,13 @@ export function SetupScreen({
             экран практики без лишних настроек.
           </p>
         </div>
-        <span className="stage-label">Sprint 5</span>
+        <button
+          className="secondary-button"
+          onClick={onOpenSettings}
+          type="button"
+        >
+          Настройки приложения
+        </button>
       </header>
 
       <MidiConnectionCard
@@ -61,13 +72,23 @@ export function SetupScreen({
         inputs={midiInputs}
         onConnect={onConnectMidi}
         onSelectInput={onSelectInput}
+        preferences={preferences}
         selectedInputId={selectedInputId}
         status={midiStatus}
       />
 
       <div className="setup-layout">
-        <TrainingSetup config={config} onChange={onConfigChange} />
-        <StartPanel config={config} midiStatus={midiStatus} onStart={onStart} />
+        <TrainingSetup
+          config={config}
+          onChange={onConfigChange}
+          preferences={preferences}
+        />
+        <StartPanel
+          config={config}
+          midiStatus={midiStatus}
+          onStart={onStart}
+          preferences={preferences}
+        />
       </div>
 
       <footer className="app-footer">

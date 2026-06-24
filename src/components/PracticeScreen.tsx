@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getIntervalInfo, getPitchClassInfo } from "../domain/music";
+import {
+  formatIntervalName,
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
 import {
   createSequentialSession,
   updateSequentialSessionForNotes,
@@ -26,6 +30,7 @@ type PracticeScreenProps = {
   midiStatus: MidiStatus;
   onFinish: (summary: SessionSummary) => void;
   onReturnToSetup: () => void;
+  preferences: AppPreferences;
 };
 
 type PracticeRuntime =
@@ -46,6 +51,7 @@ export function PracticeScreen({
   midiStatus,
   onFinish,
   onReturnToSetup,
+  preferences,
 }: PracticeScreenProps) {
   const [timing] = useState(() => {
     const startedAt = performance.now();
@@ -96,12 +102,15 @@ export function PracticeScreen({
           runtime.now,
         )
       : null;
-  const root = currentTask
-    ? getPitchClassInfo(currentTask.rootPitchClass)
-    : null;
-  const interval = currentTask
-    ? getIntervalInfo(currentTask.intervalSemitones)
-    : null;
+  const rootName = currentTask
+    ? formatNoteName(currentTask.rootPitchClass, preferences.noteNotation)
+    : "";
+  const intervalName = currentTask
+    ? formatIntervalName(
+        currentTask.intervalSemitones,
+        preferences.intervalNotation,
+      )
+    : "";
 
   useEffect(() => {
     taskTitleRef.current?.focus();
@@ -279,7 +288,7 @@ export function PracticeScreen({
       <section className="task-stage" aria-labelledby="practice-task-title">
         <p className="eyebrow">Сыграйте интервал</p>
         <p aria-atomic="true" aria-live="assertive" className="visually-hidden">
-          Задание: {root?.russianName}, {interval?.russianName}, {interval?.shortName}
+          Задание: {rootName}, {intervalName}
         </p>
         <h1
           className="practice-root"
@@ -287,11 +296,9 @@ export function PracticeScreen({
           ref={taskTitleRef}
           tabIndex={-1}
         >
-          {root?.russianName} <span>({root?.latinName})</span>
+          {rootName}
         </h1>
-        <p className="practice-interval">
-          {interval?.russianName} <span>({interval?.shortName})</span>
-        </p>
+        <p className="practice-interval">{intervalName}</p>
         {millisecondsUntilNextPrompt !== null && (
           <p className="prompt-countdown">
             Новое задание через {formatDuration(millisecondsUntilNextPrompt)}
@@ -314,7 +321,7 @@ export function PracticeScreen({
         )}
       </section>
 
-      <PianoKeyboard activeNotes={activeNotes} />
+      <PianoKeyboard activeNotes={activeNotes} preferences={preferences} />
     </main>
   );
 }
