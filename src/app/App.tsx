@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { HomeScreen } from "../components/HomeScreen";
 import { PracticeScreen } from "../components/PracticeScreen";
 import { ResultsScreen } from "../components/ResultsScreen";
 import { SettingsScreen } from "../components/SettingsScreen";
@@ -16,8 +17,9 @@ import {
 } from "./appPreferences";
 
 type ScreenState =
-  | { kind: "setup" }
-  | { kind: "settings" }
+  | { kind: "home" }
+  | { kind: "interval-setup" }
+  | { kind: "settings"; returnTo: "home" | "interval-setup" }
   | { kind: "practice"; config: TrainingConfig }
   | { kind: "results"; summary: SessionSummary };
 
@@ -30,7 +32,7 @@ export function App() {
     pitchClasses: [...DEFAULT_TRAINING_CONFIG.pitchClasses],
     intervalSemitones: [...DEFAULT_TRAINING_CONFIG.intervalSemitones],
   }));
-  const [screen, setScreen] = useState<ScreenState>({ kind: "setup" });
+  const [screen, setScreen] = useState<ScreenState>({ kind: "home" });
   const {
     status,
     errorMessage,
@@ -61,13 +63,18 @@ export function App() {
   }, []);
 
   const returnToSetup = useCallback(() => {
-    setScreen({ kind: "setup" });
+    setScreen({ kind: "interval-setup" });
   }, []);
 
   if (screen.kind === "settings") {
     return (
       <SettingsScreen
-        onBack={returnToSetup}
+        backLabel={
+          screen.returnTo === "home"
+            ? "Назад на главный экран"
+            : "Назад к настройке интервалов"
+        }
+        onBack={() => setScreen({ kind: screen.returnTo })}
         onChange={setPreferences}
         preferences={preferences}
       />
@@ -93,6 +100,17 @@ export function App() {
     );
   }
 
+  if (screen.kind === "home") {
+    return (
+      <HomeScreen
+        onOpenIntervalTraining={() => setScreen({ kind: "interval-setup" })}
+        onOpenSettings={() =>
+          setScreen({ kind: "settings", returnTo: "home" })
+        }
+      />
+    );
+  }
+
   return (
     <SetupScreen
       activeNotes={activeNotes}
@@ -103,7 +121,10 @@ export function App() {
       onConfigChange={setTrainingConfig}
       onConnectMidi={connect}
       onSelectInput={setSelectedInputId}
-      onOpenSettings={() => setScreen({ kind: "settings" })}
+      onOpenSettings={() =>
+        setScreen({ kind: "settings", returnTo: "interval-setup" })
+      }
+      onReturnHome={() => setScreen({ kind: "home" })}
       onStart={startPractice}
       preferences={preferences}
       selectedInputId={selectedInputId}

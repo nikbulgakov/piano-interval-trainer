@@ -21,6 +21,7 @@ type SetupScreenProps = {
   onConnectMidi: () => Promise<void>;
   onStart: () => void;
   onOpenSettings: () => void;
+  onReturnHome: () => void;
   preferences: AppPreferences;
 };
 
@@ -36,6 +37,7 @@ export function SetupScreen({
   onConnectMidi,
   onStart,
   onOpenSettings,
+  onReturnHome,
   preferences,
 }: SetupScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -48,22 +50,31 @@ export function SetupScreen({
     <main className="app-shell">
       <header className="hero">
         <div>
-          <p className="eyebrow">Piano Interval Trainer</p>
+          <p className="eyebrow">Тренировка интервалов</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Настройте тренировку
+            Настройте интервалы
           </h1>
           <p className="hero-copy">
             Подключите MIDI-клавиатуру, выберите материал и запустите отдельный
             экран практики без лишних настроек.
           </p>
         </div>
-        <button
-          className="secondary-button"
-          onClick={onOpenSettings}
-          type="button"
-        >
-          Настройки приложения
-        </button>
+        <div className="hero-actions">
+          <button
+            className="secondary-button"
+            onClick={onReturnHome}
+            type="button"
+          >
+            На главный экран
+          </button>
+          <button
+            className="secondary-button"
+            onClick={onOpenSettings}
+            type="button"
+          >
+            Настройки приложения
+          </button>
+        </div>
       </header>
 
       <MidiConnectionCard

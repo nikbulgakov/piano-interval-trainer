@@ -106,7 +106,8 @@ h2 {
 .training-card,
 .start-card,
 .keyboard-section,
-.settings-card {
+.settings-card,
+.training-mode-section {
   border: 1px solid #d6ded9;
   border-radius: 24px;
   background: rgb(255 255 255 / 80%);
@@ -134,6 +135,117 @@ h2 {
 
 .settings-screen {
   width: min(860px, calc(100% - 40px));
+}
+
+.home-screen {
+  width: min(960px, calc(100% - 40px));
+}
+
+.hero-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.training-mode-section {
+  padding: 28px;
+}
+
+.training-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.training-mode-card {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 300px;
+  padding: 24px;
+  border: 1px solid #cfdbd4;
+  border-radius: 20px;
+  color: #20352c;
+  background: #f7faf8;
+  text-align: left;
+  flex-direction: column;
+}
+
+.training-mode-card.is-available {
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 90% 10%, rgb(155 207 180 / 26%), transparent 12rem),
+    #f7faf8;
+  box-shadow: 0 18px 45px rgb(41 79 61 / 7%);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.training-mode-card.is-available:hover {
+  border-color: #78a88f;
+  box-shadow: 0 22px 52px rgb(41 79 61 / 13%);
+  transform: translateY(-2px);
+}
+
+.training-mode-card.is-coming {
+  color: #65736c;
+  background: #f2f5f3;
+  cursor: not-allowed;
+}
+
+.training-mode-status {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #2b684d;
+  background: #dfefe6;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.is-coming .training-mode-status {
+  color: #6d7772;
+  background: #e4e9e6;
+}
+
+.training-mode-symbol {
+  margin-top: 32px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+.training-mode-title {
+  margin-top: 22px;
+  font-size: 1.28rem;
+  font-weight: 850;
+}
+
+.training-mode-description {
+  max-width: 390px;
+  margin-top: 10px;
+  color: #66746d;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.training-mode-action {
+  margin-top: auto;
+  padding-top: 24px;
+  color: #276748;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.is-coming .training-mode-action {
+  color: #818b86;
 }
 
 .settings-card {
@@ -1076,7 +1188,8 @@ button:focus-visible {
   .training-card,
   .start-card,
   .keyboard-section,
-  .settings-card {
+  .settings-card,
+  .training-mode-section {
     padding: 20px;
     border-radius: 18px;
   }
@@ -1099,6 +1212,20 @@ button:focus-visible {
 
   .settings-screen {
     width: min(100% - 24px, 860px);
+  }
+
+  .home-screen {
+    width: min(100% - 24px, 960px);
+  }
+
+  .hero-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hero-actions .secondary-button {
+    width: 100%;
   }
 
   .settings-hero {
@@ -1164,8 +1291,13 @@ button:focus-visible {
 }
 
 @media (max-width: 480px) {
-  .preference-grid {
+  .preference-grid,
+  .training-mode-grid {
     grid-template-columns: 1fr;
+  }
+
+  .training-mode-card {
+    min-height: 280px;
   }
 }
 

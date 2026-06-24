@@ -7,12 +7,14 @@ import {
 
 type SettingsScreenProps = {
   preferences: AppPreferences;
+  backLabel: string;
   onChange: (preferences: AppPreferences) => void;
   onBack: () => void;
 };
 
 export function SettingsScreen({
   preferences,
+  backLabel,
   onChange,
   onBack,
 }: SettingsScreenProps) {
@@ -36,7 +38,7 @@ export function SettingsScreen({
           </p>
         </div>
         <button className="secondary-button" onClick={onBack} type="button">
-          Назад к настройке тренировки
+          {backLabel}
         </button>
       </header>
 
