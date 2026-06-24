@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/nikbulgakov/piano-interval-trainer/actions/workflows/ci.yml/badge.svg)](https://github.com/nikbulgakov/piano-interval-trainer/actions/workflows/ci.yml)
 
-[Открыть приложение](https://piano-interval-trainer.vercel.app) · [Резервный адрес](https://piano-interval-trainer.pages.dev)
+[Открыть приложение](https://piano-interval-trainer.vercel.app)
 
 Лёгкое браузерное приложение для тренировки быстрого построения интервалов на MIDI-клавиатуре.
 
 ## Статус
 
-MVP опубликован в Vercel и Cloudflare Pages. Дальнейшие изменения разрабатываются в отдельных ветках, получают preview-сборки и проходят CI через pull request.
+MVP опубликован в Vercel. Дальнейшие изменения разрабатываются в отдельных ветках, получают preview-сборки и проходят CI через pull request.
 
 ## MVP
 
@@ -65,18 +65,16 @@ npm run lint
 
 ## Production
 
-- основной URL: [piano-interval-trainer.vercel.app](https://piano-interval-trainer.vercel.app);
-- резервный URL: [piano-interval-trainer.pages.dev](https://piano-interval-trainer.pages.dev);
-- хостинг: Vercel и Cloudflare Pages;
+- URL: [piano-interval-trainer.vercel.app](https://piano-interval-trainer.vercel.app);
+- хостинг: Vercel;
 - production-ветка: `main`;
-- каждый pull request получает отдельный Vercel Preview;
-- Cloudflare Pages публикует только production из `main`.
+- каждый pull request получает отдельный Vercel Preview.
 
 Параметры сборки и порядок выпуска описаны в [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Разработка
 
-Правила веток, коммитов, проверок и pull request описаны в [CONTRIBUTING.md](CONTRIBUTING.md). Каждый pull request проходит lint в GitHub Actions и получает Vercel Preview; merge в `main` запускает оба production-деплоя.
+Правила веток, коммитов, проверок и pull request описаны в [CONTRIBUTING.md](CONTRIBUTING.md). Каждый pull request проходит lint в GitHub Actions и получает Vercel Preview; merge в `main` запускает production-деплой.
 
 ## Лицензия
 
