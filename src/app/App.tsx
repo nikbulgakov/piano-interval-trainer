@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useMidiSynth } from "../audio/useMidiSynth";
 import { HomeScreen } from "../components/HomeScreen";
 import { NotePracticeScreen } from "../components/NotePracticeScreen";
 import { NoteSetupScreen } from "../components/NoteSetupScreen";
@@ -60,8 +61,11 @@ export function App() {
     selectedInputId,
     setSelectedInputId,
     activeNotes,
+    lastNoteEvent,
     connect,
   } = useMidiInput();
+
+  useMidiSynth(lastNoteEvent, activeNotes, preferences.synth);
 
   useEffect(() => {
     saveAppPreferences(preferences);

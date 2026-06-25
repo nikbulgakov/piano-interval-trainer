@@ -4,6 +4,7 @@ import {
   formatNoteName,
   type AppPreferences,
 } from "../app/appPreferences";
+import type { SynthPreset } from "../audio/synthSettings";
 
 type SettingsScreenProps = {
   preferences: AppPreferences;
@@ -24,17 +25,32 @@ export function SettingsScreen({
     titleRef.current?.focus();
   }, []);
 
+  const updateSynth = (partialSynth: Partial<AppPreferences["synth"]>) => {
+    onChange({
+      ...preferences,
+      synth: {
+        ...preferences.synth,
+        ...partialSynth,
+      },
+    });
+  };
+
+  const choosePreset = (preset: SynthPreset) => {
+    updateSynth({ preset });
+  };
+
   return (
     <main className="app-shell settings-screen">
       <header className="hero settings-hero">
         <div>
           <p className="eyebrow">Настройки приложения</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Обозначения
+            Обозначения и звук
           </h1>
           <p className="hero-copy">
-            Выбранный формат используется в настройке, практике, MIDI-мониторе
-            и на экранной клавиатуре.
+            Выбранные форматы используются в настройке, практике,
+            MIDI-мониторе и на экранной клавиатуре. Звук реагирует на
+            физическую MIDI-клавиатуру.
           </p>
         </div>
         <button className="secondary-button" onClick={onBack} type="button">
@@ -132,6 +148,91 @@ export function SettingsScreen({
             {formatIntervalName(3, preferences.intervalNotation)}
           </strong>
         </div>
+      </section>
+
+      <section className="settings-card" aria-labelledby="sound-title">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Звук</p>
+            <h2 id="sound-title">Как звучит MIDI-клавиатура</h2>
+          </div>
+        </div>
+
+        <label className="sound-toggle">
+          <input
+            checked={preferences.synth.enabled}
+            onChange={(event) => updateSynth({ enabled: event.target.checked })}
+            type="checkbox"
+          />
+          <span>
+            <strong>Включить звук клавиш</strong>
+            <small>
+              Звук запускается от физической MIDI-клавиатуры и не влияет на
+              проверку ответов.
+            </small>
+          </span>
+        </label>
+
+        <fieldset className="preference-group">
+          <legend>Тембр</legend>
+          <div className="preference-grid synth-preset-grid">
+            <label className="preference-option">
+              <input
+                checked={preferences.synth.preset === "piano"}
+                name="synth-preset"
+                onChange={() => choosePreset("piano")}
+                type="radio"
+                value="piano"
+              />
+              <span>
+                <strong>Пианино</strong>
+                <small>Короткая мягкая атака</small>
+              </span>
+            </label>
+            <label className="preference-option">
+              <input
+                checked={preferences.synth.preset === "synth"}
+                name="synth-preset"
+                onChange={() => choosePreset("synth")}
+                type="radio"
+                value="synth"
+              />
+              <span>
+                <strong>Синт</strong>
+                <small>Более яркий удерживаемый звук</small>
+              </span>
+            </label>
+            <label className="preference-option">
+              <input
+                checked={preferences.synth.preset === "electric-piano"}
+                name="synth-preset"
+                onChange={() => choosePreset("electric-piano")}
+                type="radio"
+                value="electric-piano"
+              />
+              <span>
+                <strong>Электропиано</strong>
+                <small>Мягкий округлый тембр</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label className="volume-control">
+          <span>
+            <strong>Громкость</strong>
+            <small>{Math.round(preferences.synth.volume * 100)}%</small>
+          </span>
+          <input
+            max="100"
+            min="0"
+            onChange={(event) =>
+              updateSynth({ volume: Number(event.target.value) / 100 })
+            }
+            type="range"
+            value={Math.round(preferences.synth.volume * 100)}
+          />
+        </label>
       </section>
     </main>
   );

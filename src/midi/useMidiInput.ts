@@ -5,6 +5,7 @@ import {
   parseMidiMessage,
   type MidiAccessLike,
   type MidiInputLike,
+  type MidiNoteEvent,
 } from "./midiAdapter";
 
 export type MidiStatus =
@@ -34,6 +35,9 @@ export function useMidiInput() {
   const [inputs, setInputs] = useState<MidiInputInfo[]>([]);
   const [selectedInputId, setSelectedInputId] = useState("");
   const [activeNotes, setActiveNotes] = useState<Set<number>>(() => new Set());
+  const [lastNoteEvent, setLastNoteEvent] = useState<MidiNoteEvent | null>(
+    null,
+  );
   const [status, setStatus] = useState<MidiStatus>(() =>
     getRequestMidiAccess() ? "idle" : "unsupported",
   );
@@ -120,6 +124,8 @@ export function useMidiInput() {
         return;
       }
 
+      setLastNoteEvent(noteEvent);
+
       setActiveNotes((currentNotes) => {
         const nextNotes = new Set(currentNotes);
 
@@ -175,6 +181,7 @@ export function useMidiInput() {
     selectedInputId,
     setSelectedInputId: selectInput,
     activeNotes,
+    lastNoteEvent,
     connect,
   };
 }
