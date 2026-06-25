@@ -22,6 +22,7 @@ export type TimedSessionState = {
   attemptLocked: boolean;
   nextPromptAt: number;
   promptPeriodMilliseconds: number;
+  taskSerial: number;
 };
 
 function getNotesInRange(activeNotes: Iterable<number>): number[] {
@@ -52,6 +53,7 @@ export function createTimedSession(
     attemptLocked: false,
     nextPromptAt: startedAt + promptPeriodMilliseconds,
     promptPeriodMilliseconds,
+    taskSerial: 0,
   };
 }
 
@@ -103,6 +105,7 @@ export function updateTimedSessionForNotes(
       correctAnswers: state.correctAnswers + 1,
       attemptLocked: false,
       nextPromptAt: now + state.promptPeriodMilliseconds,
+      taskSerial: state.taskSerial + 1,
     };
   }
 
@@ -147,6 +150,7 @@ export function advanceTimedSessionToTime(
       attemptLocked: false,
       nextPromptAt:
         nextState.nextPromptAt + nextState.promptPeriodMilliseconds,
+      taskSerial: nextState.taskSerial + 1,
     };
   }
 

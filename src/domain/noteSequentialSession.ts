@@ -20,6 +20,7 @@ export type NoteSequentialSessionState = {
   correctAnswers: number;
   wrongAttempts: number;
   attemptLocked: boolean;
+  taskSerial: number;
 };
 
 export function createNoteSequentialSession(
@@ -37,6 +38,7 @@ export function createNoteSequentialSession(
     correctAnswers: 0,
     wrongAttempts: 0,
     attemptLocked: false,
+    taskSerial: 0,
   };
 }
 
@@ -64,6 +66,7 @@ export function updateNoteSequentialSessionForNotes(
         phase: "awaiting-answer",
         feedback: "neutral",
         attemptLocked: false,
+        taskSerial: state.taskSerial + 1,
       };
     }
 

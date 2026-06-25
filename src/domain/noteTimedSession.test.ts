@@ -51,6 +51,7 @@ describe("note timed session", () => {
     expect(next.phase).toBe("waiting-for-release");
     expect(next.feedback).toBe("correct");
     expect(next.nextPromptAt).toBe(5_000);
+    expect(next.taskSerial).toBe(armed.taskSerial + 1);
   });
 
   it("requires release before the immediate next note can be answered", () => {
@@ -99,6 +100,7 @@ describe("note timed session", () => {
     );
 
     expect(next.missedTasks).toBe(1);
+    expect(next.taskSerial).toBe(initial.taskSerial + 1);
   });
 
   it("requires release when keys are held across a prompt boundary", () => {
