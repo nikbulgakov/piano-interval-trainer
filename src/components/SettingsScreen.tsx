@@ -186,7 +186,7 @@ export function SettingsScreen({
               />
               <span>
                 <strong>Пианино</strong>
-                <small>Короткая мягкая атака</small>
+                <small>Реалистичный sample-based звук</small>
               </span>
             </label>
             <label className="preference-option">

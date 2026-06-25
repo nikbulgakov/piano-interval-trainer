@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { isNoteInPracticeRange } from "../domain/keyboard";
 import type { MidiNoteEvent } from "../midi/midiAdapter";
+import { getNearestPianoSample, PIANO_SAMPLES } from "./pianoSamples";
 import {
   getMidiNoteFrequency,
   getNoteGain,
@@ -10,7 +11,7 @@ import {
 type AudioContextConstructor = typeof AudioContext;
 
 type SynthVoice = {
-  oscillators: OscillatorNode[];
+  sources: AudioScheduledSourceNode[];
   gain: GainNode;
 };
 
@@ -72,7 +73,67 @@ function stopVoice(
 
   voice.gain.gain.cancelScheduledValues(now);
   voice.gain.gain.setTargetAtTime(0.0001, now, Math.max(0.01, releaseSeconds));
-  voice.oscillators.forEach((oscillator) => oscillator.stop(stopTime));
+  voice.sources.forEach((source) => source.stop(stopTime));
+}
+
+function fetchAudioBuffer(
+  context: AudioContext,
+  url: string,
+  cache: Map<string, Promise<AudioBuffer>>,
+): Promise<AudioBuffer> {
+  const cachedBuffer = cache.get(url);
+
+  if (cachedBuffer) {
+    return cachedBuffer;
+  }
+
+  const bufferPromise = fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load audio sample: ${url}`);
+      }
+
+      return response.arrayBuffer();
+    })
+    .then((arrayBuffer) => context.decodeAudioData(arrayBuffer));
+
+  cache.set(url, bufferPromise);
+
+  return bufferPromise;
+}
+
+function startOscillatorVoice(
+  context: AudioContext,
+  midiNote: number,
+  peakGain: number,
+  config: PresetConfig,
+  voices: Map<number, SynthVoice>,
+): void {
+  const now = context.currentTime;
+  const frequency = getMidiNoteFrequency(midiNote);
+  const sustainGain = peakGain * config.sustainLevel;
+  const gain = context.createGain();
+  const oscillators = config.oscillatorTypes.map((type, index) => {
+    const oscillator = context.createOscillator();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.detune.setValueAtTime(config.detuneCents[index] ?? 0, now);
+    oscillator.connect(gain);
+
+    return oscillator;
+  });
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(peakGain, now + config.attackSeconds);
+  gain.gain.setTargetAtTime(
+    Math.max(0.0001, sustainGain),
+    now + config.attackSeconds,
+    config.decaySeconds,
+  );
+  gain.connect(context.destination);
+  oscillators.forEach((oscillator) => oscillator.start(now));
+  voices.set(midiNote, { sources: oscillators, gain });
 }
 
 export function useMidiSynth(
@@ -82,7 +143,14 @@ export function useMidiSynth(
 ): void {
   const contextRef = useRef<AudioContext | null>(null);
   const voicesRef = useRef<Map<number, SynthVoice>>(new Map());
+  const voiceRequestIdsRef = useRef<Map<number, number>>(new Map());
+  const sampleCacheRef = useRef<Map<string, Promise<AudioBuffer>>>(new Map());
+  const activeNotesRef = useRef(activeNotes);
   const settingsRef = useRef(settings);
+
+  useEffect(() => {
+    activeNotesRef.current = activeNotes;
+  }, [activeNotes]);
 
   useEffect(() => {
     settingsRef.current = settings;
@@ -118,6 +186,10 @@ export function useMidiSynth(
 
     if (noteEvent.type === "noteoff") {
       const voice = voicesRef.current.get(noteEvent.note);
+      voiceRequestIdsRef.current.set(
+        noteEvent.note,
+        (voiceRequestIdsRef.current.get(noteEvent.note) ?? 0) + 1,
+      );
 
       if (existingContext && voice) {
         stopVoice(
@@ -160,36 +232,93 @@ export function useMidiSynth(
     }
 
     const config = PRESET_CONFIG[activeSettings.preset];
-    const now = context.currentTime;
-    const frequency = getMidiNoteFrequency(noteEvent.note);
     const peakGain =
       getNoteGain({
         velocity: noteEvent.velocity,
         volume: activeSettings.volume,
       }) * config.outputScale;
-    const sustainGain = peakGain * config.sustainLevel;
-    const gain = context.createGain();
-    const oscillators = config.oscillatorTypes.map((type, index) => {
-      const oscillator = context.createOscillator();
+    const requestId = (voiceRequestIdsRef.current.get(noteEvent.note) ?? 0) + 1;
 
-      oscillator.type = type;
-      oscillator.frequency.setValueAtTime(frequency, now);
-      oscillator.detune.setValueAtTime(config.detuneCents[index] ?? 0, now);
-      oscillator.connect(gain);
+    voiceRequestIdsRef.current.set(noteEvent.note, requestId);
 
-      return oscillator;
-    });
+    if (activeSettings.preset === "piano") {
+      const { sample, playbackRate } = getNearestPianoSample(noteEvent.note);
 
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.linearRampToValueAtTime(peakGain, now + config.attackSeconds);
-    gain.gain.setTargetAtTime(
-      Math.max(0.0001, sustainGain),
-      now + config.attackSeconds,
-      config.decaySeconds,
+      void fetchAudioBuffer(context, sample.url, sampleCacheRef.current)
+        .then((audioBuffer) => {
+          if (
+            !settingsRef.current.enabled ||
+            settingsRef.current.preset !== "piano" ||
+            !activeNotesRef.current.has(noteEvent.note) ||
+            voiceRequestIdsRef.current.get(noteEvent.note) !== requestId
+          ) {
+            return;
+          }
+
+          const sampleNow = context.currentTime;
+          const gain = context.createGain();
+          const source = context.createBufferSource();
+
+          source.buffer = audioBuffer;
+          source.playbackRate.setValueAtTime(playbackRate, sampleNow);
+          gain.gain.setValueAtTime(0.0001, sampleNow);
+          gain.gain.linearRampToValueAtTime(peakGain, sampleNow + 0.008);
+          gain.gain.setTargetAtTime(
+            Math.max(0.0001, peakGain * config.sustainLevel),
+            sampleNow + 0.02,
+            config.decaySeconds,
+          );
+          source.connect(gain);
+          gain.connect(context.destination);
+          source.start(sampleNow);
+          const voice = { sources: [source], gain };
+
+          source.onended = () => {
+            if (voicesRef.current.get(noteEvent.note) === voice) {
+              voicesRef.current.delete(noteEvent.note);
+            }
+          };
+
+          voicesRef.current.set(noteEvent.note, voice);
+          PIANO_SAMPLES.forEach((pianoSample) => {
+            void fetchAudioBuffer(
+              context,
+              pianoSample.url,
+              sampleCacheRef.current,
+            ).catch(() => {
+              // Individual sample failures fall back note-by-note.
+            });
+          });
+        })
+        .catch(() => {
+          if (
+            !settingsRef.current.enabled ||
+            settingsRef.current.preset !== "piano" ||
+            !activeNotesRef.current.has(noteEvent.note) ||
+            voiceRequestIdsRef.current.get(noteEvent.note) !== requestId
+          ) {
+            return;
+          }
+
+          startOscillatorVoice(
+            context,
+            noteEvent.note,
+            peakGain,
+            config,
+            voicesRef.current,
+          );
+        });
+
+      return;
+    }
+
+    startOscillatorVoice(
+      context,
+      noteEvent.note,
+      peakGain,
+      config,
+      voicesRef.current,
     );
-    gain.connect(context.destination);
-    oscillators.forEach((oscillator) => oscillator.start(now));
-    voicesRef.current.set(noteEvent.note, { oscillators, gain });
   }, [noteEvent]);
 
   useEffect(() => {
