@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { HomeScreen } from "../components/HomeScreen";
+import { NotePracticeScreen } from "../components/NotePracticeScreen";
+import { NoteSetupScreen } from "../components/NoteSetupScreen";
 import { PracticeScreen } from "../components/PracticeScreen";
 import { ResultsScreen } from "../components/ResultsScreen";
 import { SettingsScreen } from "../components/SettingsScreen";
 import { SetupScreen } from "../components/SetupScreen";
 import type { SessionSummary } from "../domain/sessionSummary";
+import {
+  DEFAULT_NOTE_TRAINING_CONFIG,
+  type NoteTrainingConfig,
+} from "../domain/noteTrainingConfig";
 import {
   DEFAULT_TRAINING_CONFIG,
   type TrainingConfig,
@@ -19,9 +25,18 @@ import {
 type ScreenState =
   | { kind: "home" }
   | { kind: "interval-setup" }
-  | { kind: "settings"; returnTo: "home" | "interval-setup" }
-  | { kind: "practice"; config: TrainingConfig }
-  | { kind: "results"; summary: SessionSummary };
+  | { kind: "note-setup" }
+  | {
+      kind: "settings";
+      returnTo: "home" | "interval-setup" | "note-setup";
+    }
+  | { kind: "interval-practice"; config: TrainingConfig }
+  | { kind: "note-practice"; config: NoteTrainingConfig }
+  | {
+      kind: "results";
+      summary: SessionSummary;
+      returnTo: "interval-setup" | "note-setup";
+    };
 
 export function App() {
   const [preferences, setPreferences] = useState<AppPreferences>(
@@ -32,6 +47,11 @@ export function App() {
     pitchClasses: [...DEFAULT_TRAINING_CONFIG.pitchClasses],
     intervalSemitones: [...DEFAULT_TRAINING_CONFIG.intervalSemitones],
   }));
+  const [noteTrainingConfig, setNoteTrainingConfig] =
+    useState<NoteTrainingConfig>(() => ({
+      ...DEFAULT_NOTE_TRAINING_CONFIG,
+      pitchClasses: [...DEFAULT_NOTE_TRAINING_CONFIG.pitchClasses],
+    }));
   const [screen, setScreen] = useState<ScreenState>({ kind: "home" });
   const {
     status,
@@ -47,9 +67,9 @@ export function App() {
     saveAppPreferences(preferences);
   }, [preferences]);
 
-  const startPractice = useCallback(() => {
+  const startIntervalPractice = useCallback(() => {
     setScreen({
-      kind: "practice",
+      kind: "interval-practice",
       config: {
         ...trainingConfig,
         pitchClasses: [...trainingConfig.pitchClasses],
@@ -58,12 +78,30 @@ export function App() {
     });
   }, [trainingConfig]);
 
-  const finishPractice = useCallback((summary: SessionSummary) => {
-    setScreen({ kind: "results", summary });
+  const startNotePractice = useCallback(() => {
+    setScreen({
+      kind: "note-practice",
+      config: {
+        ...noteTrainingConfig,
+        pitchClasses: [...noteTrainingConfig.pitchClasses],
+      },
+    });
+  }, [noteTrainingConfig]);
+
+  const finishIntervalPractice = useCallback((summary: SessionSummary) => {
+    setScreen({ kind: "results", summary, returnTo: "interval-setup" });
   }, []);
 
-  const returnToSetup = useCallback(() => {
+  const finishNotePractice = useCallback((summary: SessionSummary) => {
+    setScreen({ kind: "results", summary, returnTo: "note-setup" });
+  }, []);
+
+  const returnToIntervalSetup = useCallback(() => {
     setScreen({ kind: "interval-setup" });
+  }, []);
+
+  const returnToNoteSetup = useCallback(() => {
+    setScreen({ kind: "note-setup" });
   }, []);
 
   if (screen.kind === "settings") {
@@ -72,7 +110,9 @@ export function App() {
         backLabel={
           screen.returnTo === "home"
             ? "Назад на главный экран"
-            : "Назад к настройке интервалов"
+            : screen.returnTo === "note-setup"
+              ? "Назад к настройке нот"
+              : "Назад к настройке интервалов"
         }
         onBack={() => setScreen({ kind: screen.returnTo })}
         onChange={setPreferences}
@@ -81,14 +121,27 @@ export function App() {
     );
   }
 
-  if (screen.kind === "practice") {
+  if (screen.kind === "interval-practice") {
     return (
       <PracticeScreen
         activeNotes={activeNotes}
         config={screen.config}
         midiStatus={status}
-        onFinish={finishPractice}
-        onReturnToSetup={returnToSetup}
+        onFinish={finishIntervalPractice}
+        onReturnToSetup={returnToIntervalSetup}
+        preferences={preferences}
+      />
+    );
+  }
+
+  if (screen.kind === "note-practice") {
+    return (
+      <NotePracticeScreen
+        activeNotes={activeNotes}
+        config={screen.config}
+        midiStatus={status}
+        onFinish={finishNotePractice}
+        onReturnToSetup={returnToNoteSetup}
         preferences={preferences}
       />
     );
@@ -96,7 +149,21 @@ export function App() {
 
   if (screen.kind === "results") {
     return (
-      <ResultsScreen onReturn={returnToSetup} summary={screen.summary} />
+      <ResultsScreen
+        exerciseLabel={
+          screen.returnTo === "note-setup"
+            ? "Тренировка нот завершена"
+            : "Тренировка интервалов завершена"
+        }
+        onReturn={() => setScreen({ kind: screen.returnTo })}
+        returnLabel={
+          screen.returnTo === "note-setup"
+            ? "К настройке нот"
+            : "К настройке интервалов"
+        }
+        showMissedTasks={screen.returnTo === "interval-setup"}
+        summary={screen.summary}
+      />
     );
   }
 
@@ -104,9 +171,32 @@ export function App() {
     return (
       <HomeScreen
         onOpenIntervalTraining={() => setScreen({ kind: "interval-setup" })}
+        onOpenNoteTraining={() => setScreen({ kind: "note-setup" })}
         onOpenSettings={() =>
           setScreen({ kind: "settings", returnTo: "home" })
         }
+      />
+    );
+  }
+
+  if (screen.kind === "note-setup") {
+    return (
+      <NoteSetupScreen
+        activeNotes={activeNotes}
+        config={noteTrainingConfig}
+        midiErrorMessage={errorMessage}
+        midiInputs={inputs}
+        midiStatus={status}
+        onConfigChange={setNoteTrainingConfig}
+        onConnectMidi={connect}
+        onOpenSettings={() =>
+          setScreen({ kind: "settings", returnTo: "note-setup" })
+        }
+        onReturnHome={() => setScreen({ kind: "home" })}
+        onSelectInput={setSelectedInputId}
+        onStart={startNotePractice}
+        preferences={preferences}
+        selectedInputId={selectedInputId}
       />
     );
   }
@@ -125,7 +215,7 @@ export function App() {
         setScreen({ kind: "settings", returnTo: "interval-setup" })
       }
       onReturnHome={() => setScreen({ kind: "home" })}
-      onStart={startPractice}
+      onStart={startIntervalPractice}
       preferences={preferences}
       selectedInputId={selectedInputId}
     />
