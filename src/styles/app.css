@@ -352,6 +352,60 @@ h2 {
   font-weight: 500;
 }
 
+.sound-toggle,
+.volume-control {
+  display: flex;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid #d2dad5;
+  border-radius: 14px;
+  background: #f8faf8;
+}
+
+.sound-toggle {
+  align-items: flex-start;
+}
+
+.sound-toggle input {
+  flex: 0 0 auto;
+  margin-top: 4px;
+  accent-color: #1f6f51;
+}
+
+.sound-toggle span,
+.volume-control span {
+  display: grid;
+  gap: 6px;
+}
+
+.sound-toggle strong,
+.volume-control strong {
+  color: #28352f;
+  font-size: 0.86rem;
+}
+
+.sound-toggle small,
+.volume-control small {
+  color: #718079;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.synth-preset-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.volume-control {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.volume-control input {
+  width: min(280px, 100%);
+  accent-color: #1f6f51;
+}
+
 .section-heading,
 .group-heading {
   display: flex;
@@ -1264,6 +1318,15 @@ button:focus-visible {
   }
 
   .settings-hero .secondary-button {
+    width: 100%;
+  }
+
+  .volume-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .volume-control input {
     width: 100%;
   }
 

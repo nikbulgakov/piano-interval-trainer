@@ -1,4 +1,10 @@
 import { getIntervalInfo, getPitchClassInfo } from "../domain/music";
+import {
+  DEFAULT_SYNTH_SETTINGS,
+  clampSynthVolume,
+  isSynthPreset,
+  type SynthSettings,
+} from "../audio/synthSettings";
 
 export type NoteNotation = "russian" | "latin";
 export type IntervalNotation = "name" | "symbol";
@@ -6,11 +12,13 @@ export type IntervalNotation = "name" | "symbol";
 export type AppPreferences = {
   noteNotation: NoteNotation;
   intervalNotation: IntervalNotation;
+  synth: SynthSettings;
 };
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   noteNotation: "russian",
   intervalNotation: "name",
+  synth: DEFAULT_SYNTH_SETTINGS,
 };
 
 const STORAGE_KEY = "piano-interval-trainer.preferences.v1";
@@ -57,9 +65,34 @@ export function loadAppPreferences(): AppPreferences {
       (parsedPreferences.intervalNotation === "name" ||
         parsedPreferences.intervalNotation === "symbol")
     ) {
+      const storedSynth =
+        "synth" in parsedPreferences &&
+        typeof parsedPreferences.synth === "object" &&
+        parsedPreferences.synth !== null
+          ? parsedPreferences.synth
+          : null;
+
       return {
         noteNotation: parsedPreferences.noteNotation,
         intervalNotation: parsedPreferences.intervalNotation,
+        synth: {
+          enabled:
+            storedSynth && "enabled" in storedSynth
+              ? storedSynth.enabled === true
+              : DEFAULT_SYNTH_SETTINGS.enabled,
+          preset:
+            storedSynth &&
+            "preset" in storedSynth &&
+            isSynthPreset(storedSynth.preset)
+              ? storedSynth.preset
+              : DEFAULT_SYNTH_SETTINGS.preset,
+          volume:
+            storedSynth &&
+            "volume" in storedSynth &&
+            typeof storedSynth.volume === "number"
+              ? clampSynthVolume(storedSynth.volume)
+              : DEFAULT_SYNTH_SETTINGS.volume,
+        },
       };
     }
   } catch {
