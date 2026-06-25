@@ -5,6 +5,12 @@ import {
   updateNoteSequentialSessionForNotes,
   type NoteSequentialSessionState,
 } from "../domain/noteSequentialSession";
+import {
+  advanceNoteTimedSessionToTime,
+  createNoteTimedSession,
+  updateNoteTimedSessionForNotes,
+  type NoteTimedSessionState,
+} from "../domain/noteTimedSession";
 import type { NoteTrainingConfig } from "../domain/noteTrainingConfig";
 import {
   createSessionSummary,
@@ -18,15 +24,22 @@ type NotePracticeScreenProps = {
   config: NoteTrainingConfig;
   activeNotes: ReadonlySet<number>;
   midiStatus: MidiStatus;
-  onFinish: (summary: SessionSummary) => void;
+  onFinish: (summary: SessionSummary, showMissedTasks: boolean) => void;
   onReturnToSetup: () => void;
   preferences: AppPreferences;
 };
 
-type NotePracticeRuntime = {
-  now: number;
-  session: NoteSequentialSessionState;
-};
+type NotePracticeRuntime =
+  | {
+      mode: "sequential";
+      now: number;
+      session: NoteSequentialSessionState;
+    }
+  | {
+      mode: "timed";
+      now: number;
+      session: NoteTimedSessionState;
+    };
 
 export function NotePracticeScreen({
   config,
@@ -44,10 +57,27 @@ export function NotePracticeScreen({
       endsAt: startedAt + config.durationMinutes * 60_000,
     };
   });
-  const [runtime, setRuntime] = useState<NotePracticeRuntime>(() => ({
-    now: performance.now(),
-    session: createNoteSequentialSession(config.pitchClasses),
-  }));
+  const [runtime, setRuntime] = useState<NotePracticeRuntime>(() => {
+    const now = performance.now();
+
+    if (config.mode === "timed") {
+      return {
+        mode: "timed",
+        now,
+        session: createNoteTimedSession(
+          config.pitchClasses,
+          timing.startedAt,
+          config.promptPeriodSeconds * 1000,
+        ),
+      };
+    }
+
+    return {
+      mode: "sequential",
+      now,
+      session: createNoteSequentialSession(config.pitchClasses),
+    };
+  });
   const finishedRef = useRef(false);
   const taskTitleRef = useRef<HTMLHeadingElement>(null);
   const midiIsReady = midiStatus === "ready";
@@ -57,6 +87,10 @@ export function NotePracticeScreen({
     runtime.now,
   );
   const targetPitchClass = runtime.session.bag.current;
+  const millisecondsUntilNextPrompt =
+    runtime.mode === "timed"
+      ? getRemainingMilliseconds(runtime.session.nextPromptAt, runtime.now)
+      : null;
   const noteName =
     targetPitchClass === null
       ? ""
@@ -83,27 +117,46 @@ export function NotePracticeScreen({
           {
             correctAnswers: runtime.session.correctAnswers,
             wrongAttempts: runtime.session.wrongAttempts,
-            missedTasks: 0,
+            missedTasks:
+              runtime.mode === "timed" ? runtime.session.missedTasks : 0,
           },
           plannedDurationSeconds,
           elapsedSeconds,
           stoppedEarly,
         ),
+        runtime.mode === "timed",
       );
     },
-    [onFinish, plannedDurationSeconds, runtime.session, timing.startedAt],
+    [onFinish, plannedDurationSeconds, runtime, timing.startedAt],
   );
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setRuntime((currentRuntime) => ({
-        ...currentRuntime,
-        now: performance.now(),
-      }));
+      setRuntime((currentRuntime) => {
+        const now = performance.now();
+
+        if (currentRuntime.mode === "timed") {
+          return {
+            ...currentRuntime,
+            now,
+            session: advanceNoteTimedSessionToTime(
+              currentRuntime.session,
+              Math.min(now, timing.endsAt),
+              activeNotes,
+              config.pitchClasses,
+            ),
+          };
+        }
+
+        return {
+          ...currentRuntime,
+          now,
+        };
+      });
     }, 200);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [activeNotes, config.pitchClasses, timing.endsAt]);
 
   useEffect(() => {
     if (remainingMilliseconds === 0) {
@@ -117,18 +170,45 @@ export function NotePracticeScreen({
     }
 
     const settleTimer = window.setTimeout(() => {
-      setRuntime((currentRuntime) => ({
-        ...currentRuntime,
-        session: updateNoteSequentialSessionForNotes(
-          currentRuntime.session,
-          activeNotes,
-          config.pitchClasses,
-        ),
-      }));
+      setRuntime((currentRuntime) => {
+        if (currentRuntime.mode === "timed") {
+          const now = performance.now();
+          const sessionNow = Math.min(now, timing.endsAt);
+          const advancedSession = advanceNoteTimedSessionToTime(
+            currentRuntime.session,
+            sessionNow,
+            activeNotes,
+            config.pitchClasses,
+          );
+
+          return {
+            ...currentRuntime,
+            now,
+            session:
+              now >= timing.endsAt
+                ? advancedSession
+                : updateNoteTimedSessionForNotes(
+                    advancedSession,
+                    activeNotes,
+                    now,
+                    config.pitchClasses,
+                  ),
+          };
+        }
+
+        return {
+          ...currentRuntime,
+          session: updateNoteSequentialSessionForNotes(
+            currentRuntime.session,
+            activeNotes,
+            config.pitchClasses,
+          ),
+        };
+      });
     }, 45);
 
     return () => window.clearTimeout(settleTimer);
-  }, [activeNotes, config.pitchClasses, midiIsReady]);
+  }, [activeNotes, config.pitchClasses, midiIsReady, timing.endsAt]);
 
   let feedbackText = "Нажмите одну клавишу с этой нотой.";
   let feedbackTone = "neutral";
@@ -137,7 +217,10 @@ export function NotePracticeScreen({
     feedbackText = "MIDI-клавиатура отключена. Подключите её снова.";
     feedbackTone = "warning";
   } else if (runtime.session.feedback === "correct") {
-    feedbackText = "Правильно. Отпустите клавишу для следующего задания.";
+    feedbackText =
+      runtime.mode === "timed"
+        ? "Правильно. Следующая нота уже на экране — отпустите клавишу."
+        : "Правильно. Отпустите клавишу для следующего задания.";
     feedbackTone = "correct";
   } else if (runtime.session.feedback === "incorrect") {
     feedbackText = "Не та нота — отпустите клавиши и попробуйте ещё.";
@@ -150,10 +233,18 @@ export function NotePracticeScreen({
     <main className="practice-shell">
       <header className="practice-topbar">
         <div>
-          <p className="eyebrow">Поиск нот · Последовательный режим</p>
+          <p className="eyebrow">
+            Поиск нот ·{" "}
+            {runtime.mode === "timed"
+              ? "Режим на время"
+              : "Последовательный режим"}
+          </p>
           <p className="practice-score">
             Правильно: {runtime.session.correctAnswers} · Ошибок:{" "}
             {runtime.session.wrongAttempts}
+            {runtime.mode === "timed" && (
+              <> · Пропусков: {runtime.session.missedTasks}</>
+            )}
           </p>
         </div>
         <time className="session-timer" aria-label="Оставшееся время">
@@ -182,7 +273,11 @@ export function NotePracticeScreen({
           {noteName}
         </h1>
         <p className="note-practice-hint">
-          Нажмите одну клавишу в любой октаве.
+          {runtime.mode === "timed" && millisecondsUntilNextPrompt !== null
+            ? `Нажмите одну клавишу в любой октаве · осталось ${formatDuration(
+                millisecondsUntilNextPrompt,
+              )}`
+            : "Нажмите одну клавишу в любой октаве."}
         </p>
         <p
           className={`practice-feedback feedback-${feedbackTone}`}

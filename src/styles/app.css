@@ -545,25 +545,6 @@ h2 {
   gap: 18px;
 }
 
-.note-mode-summary {
-  display: grid;
-  gap: 7px;
-  padding: 15px;
-  border-radius: 12px;
-  color: #28352f;
-  background: #edf5f0;
-}
-
-.note-mode-summary strong {
-  font-size: 0.82rem;
-}
-
-.note-mode-summary span {
-  color: #718079;
-  font-size: 0.72rem;
-  line-height: 1.45;
-}
-
 .compact-group {
   margin-top: 0;
 }

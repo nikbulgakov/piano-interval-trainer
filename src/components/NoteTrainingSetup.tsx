@@ -100,12 +100,41 @@ export function NoteTrainingSetup({
       </fieldset>
 
       <div className="session-settings note-session-settings">
-        <div className="note-mode-summary">
-          <strong>Последовательный режим</strong>
-          <span>Следующая нота появляется после правильного ответа.</span>
-        </div>
+        <fieldset className="setup-group compact-group">
+          <legend>Режим</legend>
+          <div className="mode-grid">
+            <label className="mode-option">
+              <input
+                checked={config.mode === "sequential"}
+                name="note-training-mode"
+                onChange={() => onChange({ ...config, mode: "sequential" })}
+                type="radio"
+                value="sequential"
+              />
+              <span>
+                <strong>Последовательный</strong>
+                <small>Новая нота после правильного ответа</small>
+              </span>
+            </label>
+            <label className="mode-option">
+              <input
+                checked={config.mode === "timed"}
+                name="note-training-mode"
+                onChange={() => onChange({ ...config, mode: "timed" })}
+                type="radio"
+                value="timed"
+              />
+              <span>
+                <strong>На время</strong>
+                <small>Следующая нота сразу после ответа или по таймеру</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
 
-        <div className="number-fields single-number-field">
+        <div
+          className={`number-fields${config.mode === "sequential" ? " single-number-field" : ""}`}
+        >
           <label className="number-field">
             <span>Длительность, мин</span>
             <input
@@ -131,6 +160,36 @@ export function NoteTrainingSetup({
               </small>
             )}
           </label>
+
+          {config.mode === "timed" && (
+            <label className="number-field">
+              <span>Время на ноту, сек</span>
+              <input
+                aria-describedby={
+                  errors.promptPeriodSeconds
+                    ? "note-prompt-period-error"
+                    : undefined
+                }
+                aria-invalid={Boolean(errors.promptPeriodSeconds)}
+                max="30"
+                min="1"
+                onChange={(event) =>
+                  onChange({
+                    ...config,
+                    promptPeriodSeconds: Number(event.target.value),
+                  })
+                }
+                step="1"
+                type="number"
+                value={config.promptPeriodSeconds || ""}
+              />
+              {errors.promptPeriodSeconds && (
+                <small className="field-error" id="note-prompt-period-error">
+                  {errors.promptPeriodSeconds}
+                </small>
+              )}
+            </label>
+          )}
         </div>
       </div>
     </section>

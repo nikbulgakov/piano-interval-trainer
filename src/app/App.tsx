@@ -37,6 +37,7 @@ type ScreenState =
       kind: "results";
       summary: SessionSummary;
       returnTo: "interval-setup" | "note-setup";
+      showMissedTasks: boolean;
     };
 
 export function App() {
@@ -93,12 +94,25 @@ export function App() {
   }, [noteTrainingConfig]);
 
   const finishIntervalPractice = useCallback((summary: SessionSummary) => {
-    setScreen({ kind: "results", summary, returnTo: "interval-setup" });
+    setScreen({
+      kind: "results",
+      summary,
+      returnTo: "interval-setup",
+      showMissedTasks: true,
+    });
   }, []);
 
-  const finishNotePractice = useCallback((summary: SessionSummary) => {
-    setScreen({ kind: "results", summary, returnTo: "note-setup" });
-  }, []);
+  const finishNotePractice = useCallback(
+    (summary: SessionSummary, showMissedTasks: boolean) => {
+      setScreen({
+        kind: "results",
+        summary,
+        returnTo: "note-setup",
+        showMissedTasks,
+      });
+    },
+    [],
+  );
 
   const returnToIntervalSetup = useCallback(() => {
     setScreen({ kind: "interval-setup" });
@@ -165,7 +179,7 @@ export function App() {
             ? "К настройке нот"
             : "К настройке интервалов"
         }
-        showMissedTasks={screen.returnTo === "interval-setup"}
+        showMissedTasks={screen.showMissedTasks}
         summary={screen.summary}
       />
     );
