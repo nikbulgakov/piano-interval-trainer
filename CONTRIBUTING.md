@@ -1,4 +1,4 @@
-# Разработка Piano Interval Trainer
+# Разработка Key Sense
 
 ## Рабочий процесс
 

@@ -1,10 +1,10 @@
-# Piano Interval Trainer
+# Key Sense
 
 [![CI](https://github.com/nikbulgakov/piano-interval-trainer/actions/workflows/ci.yml/badge.svg)](https://github.com/nikbulgakov/piano-interval-trainer/actions/workflows/ci.yml)
 
 [Открыть приложение](https://piano-interval-trainer.vercel.app)
 
-Лёгкое браузерное приложение для тренировки быстрого построения интервалов на MIDI-клавиатуре.
+Лёгкое браузерное приложение для тренировки быстрого поиска нот и интервалов на MIDI-клавиатуре.
 
 ## Статус
 
