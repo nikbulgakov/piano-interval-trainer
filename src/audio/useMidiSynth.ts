@@ -7,6 +7,7 @@ import {
   getNoteGain,
   type SynthSettings,
 } from "./synthSettings";
+import { getSynthVoiceMode, shouldPreloadPianoSamples } from "./synthVoiceMode";
 
 type AudioContextConstructor = typeof AudioContext;
 
@@ -102,6 +103,18 @@ function fetchAudioBuffer(
   return bufferPromise;
 }
 
+function preloadPianoSamples(
+  context: AudioContext,
+  cache: Map<string, Promise<AudioBuffer>>,
+): void {
+  PIANO_SAMPLES.forEach((pianoSample) => {
+    void fetchAudioBuffer(context, pianoSample.url, cache).catch(() => {
+      // A failed sample should not silently switch the piano preset back to
+      // the old oscillator sound. The individual note will stay silent.
+    });
+  });
+}
+
 function startOscillatorVoice(
   context: AudioContext,
   midiNote: number,
@@ -169,6 +182,16 @@ export function useMidiSynth(
       );
       voicesRef.current.clear();
     }
+
+    if (shouldPreloadPianoSamples(settings, Boolean(contextRef.current))) {
+      const context = contextRef.current;
+
+      if (!context) {
+        return;
+      }
+
+      preloadPianoSamples(context, sampleCacheRef.current);
+    }
   }, [settings]);
 
   useEffect(() => {
@@ -216,9 +239,10 @@ export function useMidiSynth(
     const context = existingContext ?? new AudioContextClass();
     contextRef.current = context;
 
-    if (context.state === "suspended") {
-      void context.resume();
-    }
+    const contextReady =
+      context.state === "suspended"
+        ? context.resume().catch(() => undefined)
+        : Promise.resolve();
 
     const existingVoice = voicesRef.current.get(noteEvent.note);
 
@@ -244,13 +268,17 @@ export function useMidiSynth(
     if (activeSettings.preset === "piano") {
       const { sample, playbackRate } = getNearestPianoSample(noteEvent.note);
 
-      void fetchAudioBuffer(context, sample.url, sampleCacheRef.current)
-        .then((audioBuffer) => {
+      void Promise.all([
+        contextReady,
+        fetchAudioBuffer(context, sample.url, sampleCacheRef.current),
+      ])
+        .then(([, audioBuffer]) => {
           if (
             !settingsRef.current.enabled ||
             settingsRef.current.preset !== "piano" ||
             !activeNotesRef.current.has(noteEvent.note) ||
-            voiceRequestIdsRef.current.get(noteEvent.note) !== requestId
+            voiceRequestIdsRef.current.get(noteEvent.note) !== requestId ||
+            getSynthVoiceMode("piano", "ready") !== "sample"
           ) {
             return;
           }
@@ -280,33 +308,12 @@ export function useMidiSynth(
           };
 
           voicesRef.current.set(noteEvent.note, voice);
-          PIANO_SAMPLES.forEach((pianoSample) => {
-            void fetchAudioBuffer(
-              context,
-              pianoSample.url,
-              sampleCacheRef.current,
-            ).catch(() => {
-              // Individual sample failures fall back note-by-note.
-            });
-          });
+          preloadPianoSamples(context, sampleCacheRef.current);
         })
         .catch(() => {
-          if (
-            !settingsRef.current.enabled ||
-            settingsRef.current.preset !== "piano" ||
-            !activeNotesRef.current.has(noteEvent.note) ||
-            voiceRequestIdsRef.current.get(noteEvent.note) !== requestId
-          ) {
+          if (getSynthVoiceMode("piano", "failed") === "none") {
             return;
           }
-
-          startOscillatorVoice(
-            context,
-            noteEvent.note,
-            peakGain,
-            config,
-            voicesRef.current,
-          );
         });
 
       return;

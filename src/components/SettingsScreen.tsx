@@ -5,19 +5,35 @@ import {
   type AppPreferences,
 } from "../app/appPreferences";
 import type { SynthPreset } from "../audio/synthSettings";
+import type { MidiInputInfo, MidiStatus } from "../midi/useMidiInput";
+import { MidiConnectionCard } from "./MidiConnectionCard";
 
 type SettingsScreenProps = {
   preferences: AppPreferences;
   backLabel: string;
+  activeNotes: Set<number>;
+  midiErrorMessage: string;
+  midiInputs: MidiInputInfo[];
+  midiStatus: MidiStatus;
   onChange: (preferences: AppPreferences) => void;
   onBack: () => void;
+  onConnectMidi: () => Promise<void>;
+  onSelectInput: (inputId: string) => void;
+  selectedInputId: string;
 };
 
 export function SettingsScreen({
   preferences,
   backLabel,
+  activeNotes,
+  midiErrorMessage,
+  midiInputs,
+  midiStatus,
   onChange,
   onBack,
+  onConnectMidi,
+  onSelectInput,
+  selectedInputId,
 }: SettingsScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -234,6 +250,17 @@ export function SettingsScreen({
           />
         </label>
       </section>
+
+      <MidiConnectionCard
+        activeNotes={activeNotes}
+        errorMessage={midiErrorMessage}
+        inputs={midiInputs}
+        onConnect={onConnectMidi}
+        onSelectInput={onSelectInput}
+        preferences={preferences}
+        selectedInputId={selectedInputId}
+        status={midiStatus}
+      />
     </main>
   );
 }

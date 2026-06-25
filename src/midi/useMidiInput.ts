@@ -7,6 +7,10 @@ import {
   type MidiInputLike,
   type MidiNoteEvent,
 } from "./midiAdapter";
+import {
+  loadStoredMidiInputId,
+  saveStoredMidiInputId,
+} from "./midiInputStorage";
 
 export type MidiStatus =
   | "idle"
@@ -33,7 +37,9 @@ function toInputInfo(input: MidiInputLike): MidiInputInfo {
 
 export function useMidiInput() {
   const [inputs, setInputs] = useState<MidiInputInfo[]>([]);
-  const [selectedInputId, setSelectedInputId] = useState("");
+  const [selectedInputId, setSelectedInputId] = useState(
+    loadStoredMidiInputId,
+  );
   const [activeNotes, setActiveNotes] = useState<Set<number>>(() => new Set());
   const [lastNoteEvent, setLastNoteEvent] = useState<MidiNoteEvent | null>(
     null,
@@ -43,10 +49,12 @@ export function useMidiInput() {
   );
   const [errorMessage, setErrorMessage] = useState("");
   const midiAccessRef = useRef<MidiAccessLike | null>(null);
+  const shouldAutoConnectRef = useRef(Boolean(loadStoredMidiInputId()));
   const inputPortsRef = useRef<Map<string, MidiInputLike>>(new Map());
 
   const refreshInputs = useCallback((access: MidiAccessLike) => {
     const nextPorts = new Map<string, MidiInputLike>();
+    const storedInputId = loadStoredMidiInputId();
 
     access.inputs.forEach((input) => {
       if (input.state === "connected") {
@@ -58,15 +66,34 @@ export function useMidiInput() {
     const nextInputs = Array.from(nextPorts.values(), toInputInfo);
     setInputs(nextInputs);
     setActiveNotes(new Set());
-    setErrorMessage("");
 
     setSelectedInputId((currentId) => {
       if (currentId && nextPorts.has(currentId)) {
+        saveStoredMidiInputId(currentId);
         return currentId;
       }
 
-      return nextInputs[0]?.id ?? "";
+      if (storedInputId && nextPorts.has(storedInputId)) {
+        saveStoredMidiInputId(storedInputId);
+        return storedInputId;
+      }
+
+      const fallbackInputId = nextInputs[0]?.id ?? "";
+
+      if (fallbackInputId) {
+        saveStoredMidiInputId(fallbackInputId);
+      }
+
+      return fallbackInputId;
     });
+
+    if (storedInputId && nextInputs.length > 0 && !nextPorts.has(storedInputId)) {
+      setErrorMessage(
+        "Сохранённый MIDI-вход не найден. Выбран первый доступный вход.",
+      );
+    } else {
+      setErrorMessage("");
+    }
 
     setStatus(nextInputs.length > 0 ? "ready" : "no-inputs");
   }, []);
@@ -99,6 +126,13 @@ export function useMidiInput() {
       setErrorMessage(failure.message);
     }
   }, [refreshInputs]);
+
+  useEffect(() => {
+    if (shouldAutoConnectRef.current) {
+      shouldAutoConnectRef.current = false;
+      void connect();
+    }
+  }, [connect]);
 
   useEffect(() => {
     return () => {
@@ -171,6 +205,7 @@ export function useMidiInput() {
     setActiveNotes(new Set());
     setErrorMessage("");
     setStatus(inputPortsRef.current.has(inputId) ? "ready" : "no-inputs");
+    saveStoredMidiInputId(inputId);
     setSelectedInputId(inputId);
   }, []);
 

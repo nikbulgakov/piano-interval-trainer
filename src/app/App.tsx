@@ -125,6 +125,7 @@ export function App() {
   if (screen.kind === "settings") {
     return (
       <SettingsScreen
+        activeNotes={activeNotes}
         backLabel={
           screen.returnTo === "home"
             ? "Назад на главный экран"
@@ -132,9 +133,15 @@ export function App() {
               ? "Назад к настройке нот"
               : "Назад к настройке интервалов"
         }
+        midiErrorMessage={errorMessage}
+        midiInputs={inputs}
+        midiStatus={status}
         onBack={() => setScreen({ kind: screen.returnTo })}
         onChange={setPreferences}
+        onConnectMidi={connect}
+        onSelectInput={setSelectedInputId}
         preferences={preferences}
+        selectedInputId={selectedInputId}
       />
     );
   }
