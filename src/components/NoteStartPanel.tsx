@@ -47,8 +47,14 @@ export function NoteStartPanel({
         </div>
         <div>
           <dt>Режим</dt>
-          <dd>Последовательный</dd>
+          <dd>{config.mode === "timed" ? "На время" : "Последовательный"}</dd>
         </div>
+        {config.mode === "timed" && (
+          <div>
+            <dt>На ноту</dt>
+            <dd>{config.promptPeriodSeconds} сек</dd>
+          </div>
+        )}
         <div>
           <dt>Длительность</dt>
           <dd>{config.durationMinutes} мин</dd>

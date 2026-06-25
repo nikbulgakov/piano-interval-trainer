@@ -1,18 +1,28 @@
 import type { PitchClass } from "./music";
 
+export type NoteTrainingMode = "sequential" | "timed";
+
 export type NoteTrainingConfig = {
   pitchClasses: PitchClass[];
+  mode: NoteTrainingMode;
   durationMinutes: number;
+  promptPeriodSeconds: number;
 };
 
 export type NoteTrainingConfigErrors = Partial<
-  Record<"pitchClasses" | "durationMinutes", string>
+  Record<"pitchClasses" | "durationMinutes" | "promptPeriodSeconds", string>
 >;
 
 export const DEFAULT_NOTE_TRAINING_CONFIG: NoteTrainingConfig = {
   pitchClasses: [0],
+  mode: "sequential",
   durationMinutes: 5,
+  promptPeriodSeconds: 5,
 };
+
+function isIntegerInRange(value: number, min: number, max: number): boolean {
+  return Number.isInteger(value) && value >= min && value <= max;
+}
 
 export function validateNoteTrainingConfig(
   config: NoteTrainingConfig,
@@ -23,12 +33,15 @@ export function validateNoteTrainingConfig(
     errors.pitchClasses = "Выберите хотя бы одну ноту.";
   }
 
-  if (
-    !Number.isInteger(config.durationMinutes) ||
-    config.durationMinutes < 1 ||
-    config.durationMinutes > 60
-  ) {
+  if (!isIntegerInRange(config.durationMinutes, 1, 60)) {
     errors.durationMinutes = "Укажите целое число от 1 до 60 минут.";
+  }
+
+  if (
+    config.mode === "timed" &&
+    !isIntegerInRange(config.promptPeriodSeconds, 1, 30)
+  ) {
+    errors.promptPeriodSeconds = "Укажите целое число от 1 до 30 секунд.";
   }
 
   return errors;
