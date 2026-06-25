@@ -217,6 +217,6 @@ Vercel собирает проект из GitHub:
 - команда — `npm run build`;
 - каталог результата — `dist`;
 - версия Node.js — 24.x;
-- ветки pull request получают отдельные preview-деплои.
+- автоматические деплои feature-веток отключены в `vercel.json`.
 
-GitHub Actions запускает обязательный lint. Vercel Preview подтверждает сборку и даёт URL для ручной приёмки. После merge Vercel публикует production. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.
+GitHub Actions запускает обязательный lint. Ручная приёмка feature-веток выполняется локально с MIDI-клавиатурой. После merge Vercel публикует production из `main`. Подробности и порядок выпуска находятся в `docs/DEPLOYMENT.md`.

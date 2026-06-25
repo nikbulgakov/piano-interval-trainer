@@ -8,7 +8,7 @@
 
 ## Статус
 
-MVP опубликован в Vercel. Дальнейшие изменения разрабатываются в отдельных ветках, получают preview-сборки и проходят CI через pull request.
+MVP опубликован в Vercel. Дальнейшие изменения разрабатываются в отдельных ветках и проходят CI через pull request; Vercel деплоит только `main`.
 
 ## MVP
 
@@ -32,7 +32,7 @@ MVP опубликован в Vercel. Дальнейшие изменения р
 - [docs/PRODUCT.md](docs/PRODUCT.md) — продуктовая спецификация и критерии приёмки.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — техническая архитектура и границы модулей.
 - [docs/DECISIONS.md](docs/DECISIONS.md) — журнал принятых и предварительных решений.
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — production, preview-сборки и порядок публикации.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — production-деплой и порядок публикации.
 - [PLANS.md](PLANS.md) — спринты и ручные проверки после каждого этапа.
 
 ## Стек
@@ -69,13 +69,13 @@ npm run lint
 - URL: [piano-interval-trainer.vercel.app](https://piano-interval-trainer.vercel.app);
 - хостинг: Vercel;
 - production-ветка: `main`;
-- каждый pull request получает отдельный Vercel Preview.
+- feature-ветки не создают Vercel Preview.
 
 Параметры сборки и порядок выпуска описаны в [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Разработка
 
-Правила веток, коммитов, проверок и pull request описаны в [CONTRIBUTING.md](CONTRIBUTING.md). Каждый pull request проходит lint в GitHub Actions и получает Vercel Preview; merge в `main` запускает production-деплой.
+Правила веток, коммитов, проверок и pull request описаны в [CONTRIBUTING.md](CONTRIBUTING.md). Каждый pull request проходит lint в GitHub Actions; merge в `main` запускает production-деплой.
 
 ## Лицензия
 
