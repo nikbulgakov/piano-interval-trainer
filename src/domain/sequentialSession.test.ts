@@ -97,9 +97,11 @@ describe("sequential session", () => {
     );
 
     expect(solved.phase).toBe("solved-waiting-for-release");
+    expect(solved.taskSerial).toBe(armed.taskSerial);
     expect(oneHeld.bag.current).toEqual(firstTask);
     expect(next.phase).toBe("awaiting-answer");
     expect(next.bag.current).not.toEqual(firstTask);
+    expect(next.taskSerial).toBe(armed.taskSerial + 1);
   });
 
   it("rejects a chord with an extra in-range key", () => {

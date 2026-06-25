@@ -20,6 +20,7 @@ export type SequentialSessionState = {
   correctAnswers: number;
   wrongAttempts: number;
   attemptLocked: boolean;
+  taskSerial: number;
 };
 
 export function createSequentialSession(
@@ -39,6 +40,7 @@ export function createSequentialSession(
     correctAnswers: 0,
     wrongAttempts: 0,
     attemptLocked: false,
+    taskSerial: 0,
   };
 }
 
@@ -74,6 +76,7 @@ export function updateSequentialSessionForNotes(
         phase: "awaiting-answer",
         feedback: "neutral",
         attemptLocked: false,
+        taskSerial: state.taskSerial + 1,
       };
     }
 
@@ -109,4 +112,3 @@ export function updateSequentialSessionForNotes(
     attemptLocked: true,
   };
 }
-

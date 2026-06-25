@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   formatIntervalName,
-  formatNoteName,
   type AppPreferences,
 } from "../app/appPreferences";
+import {
+  createPracticeNoteDisplay,
+  formatPracticeNoteDisplay,
+} from "../app/practiceNoteDisplay";
 import {
   createSequentialSession,
   updateSequentialSessionForNotes,
@@ -95,6 +98,9 @@ export function PracticeScreen({
     runtime.now,
   );
   const currentTask = runtime.session.bag.current;
+  const rootDisplayKey = currentTask
+    ? `${runtime.session.taskSerial}:${currentTask.rootPitchClass}`
+    : "";
   const millisecondsUntilNextPrompt =
     runtime.mode === "timed"
       ? getRemainingMilliseconds(
@@ -102,8 +108,18 @@ export function PracticeScreen({
           runtime.now,
         )
       : null;
-  const rootName = currentTask
-    ? formatNoteName(currentTask.rootPitchClass, preferences.noteNotation)
+  const rootDisplay = useMemo(
+    () => {
+      if (!rootDisplayKey || !currentTask) {
+        return null;
+      }
+
+      return createPracticeNoteDisplay(currentTask.rootPitchClass);
+    },
+    [currentTask, rootDisplayKey],
+  );
+  const rootName = rootDisplay
+    ? formatPracticeNoteDisplay(rootDisplay, preferences.noteNotation)
     : "";
   const intervalName = currentTask
     ? formatIntervalName(

@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { formatNoteName, type AppPreferences } from "../app/appPreferences";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { AppPreferences } from "../app/appPreferences";
+import {
+  createPracticeNoteDisplay,
+  formatPracticeNoteDisplay,
+} from "../app/practiceNoteDisplay";
 import {
   createNoteSequentialSession,
   updateNoteSequentialSessionForNotes,
@@ -87,14 +91,27 @@ export function NotePracticeScreen({
     runtime.now,
   );
   const targetPitchClass = runtime.session.bag.current;
+  const noteDisplayKey =
+    targetPitchClass === null
+      ? ""
+      : `${runtime.session.taskSerial}:${targetPitchClass}`;
   const millisecondsUntilNextPrompt =
     runtime.mode === "timed"
       ? getRemainingMilliseconds(runtime.session.nextPromptAt, runtime.now)
       : null;
-  const noteName =
-    targetPitchClass === null
-      ? ""
-      : formatNoteName(targetPitchClass, preferences.noteNotation);
+  const noteDisplay = useMemo(
+    () => {
+      if (!noteDisplayKey || targetPitchClass === null) {
+        return null;
+      }
+
+      return createPracticeNoteDisplay(targetPitchClass);
+    },
+    [noteDisplayKey, targetPitchClass],
+  );
+  const noteName = noteDisplay
+    ? formatPracticeNoteDisplay(noteDisplay, preferences.noteNotation)
+    : "";
 
   useEffect(() => {
     taskTitleRef.current?.focus();
