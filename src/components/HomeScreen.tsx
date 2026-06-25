@@ -21,7 +21,7 @@ export function HomeScreen({
     <main className="app-shell home-screen">
       <header className="hero">
         <div>
-          <p className="eyebrow">Piano Interval Trainer</p>
+          <p className="eyebrow">Key Sense</p>
           <h1 ref={titleRef} tabIndex={-1}>
             Выберите тренировку
           </h1>
