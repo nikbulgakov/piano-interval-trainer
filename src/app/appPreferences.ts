@@ -8,20 +8,29 @@ import {
 
 export type NoteNotation = "russian" | "latin";
 export type IntervalNotation = "name" | "symbol";
+export type InterfaceLanguage = "ru" | "en";
 
 export type AppPreferences = {
+  interfaceLanguage: InterfaceLanguage;
   noteNotation: NoteNotation;
   intervalNotation: IntervalNotation;
   synth: SynthSettings;
 };
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
+  interfaceLanguage: "ru",
   noteNotation: "russian",
   intervalNotation: "name",
   synth: DEFAULT_SYNTH_SETTINGS,
 };
 
 const STORAGE_KEY = "piano-interval-trainer.preferences.v1";
+
+type PreferencesStorage = Pick<Storage, "getItem" | "setItem">;
+
+function isInterfaceLanguage(value: unknown): value is InterfaceLanguage {
+  return value === "ru" || value === "en";
+}
 
 export function formatNoteName(
   pitchClass: number,
@@ -45,9 +54,11 @@ export function formatIntervalName(
   return notation === "name" ? interval.russianName : interval.shortName;
 }
 
-export function loadAppPreferences(): AppPreferences {
+export function loadAppPreferencesFromStorage(
+  storage: PreferencesStorage,
+): AppPreferences {
   try {
-    const storedPreferences = window.localStorage.getItem(STORAGE_KEY);
+    const storedPreferences = storage.getItem(STORAGE_KEY);
 
     if (!storedPreferences) {
       return { ...DEFAULT_APP_PREFERENCES };
@@ -73,6 +84,11 @@ export function loadAppPreferences(): AppPreferences {
           : null;
 
       return {
+        interfaceLanguage:
+          "interfaceLanguage" in parsedPreferences &&
+          isInterfaceLanguage(parsedPreferences.interfaceLanguage)
+            ? parsedPreferences.interfaceLanguage
+            : DEFAULT_APP_PREFERENCES.interfaceLanguage,
         noteNotation: parsedPreferences.noteNotation,
         intervalNotation: parsedPreferences.intervalNotation,
         synth: {
@@ -102,10 +118,21 @@ export function loadAppPreferences(): AppPreferences {
   return { ...DEFAULT_APP_PREFERENCES };
 }
 
-export function saveAppPreferences(preferences: AppPreferences): void {
+export function loadAppPreferences(): AppPreferences {
+  return loadAppPreferencesFromStorage(window.localStorage);
+}
+
+export function saveAppPreferencesToStorage(
+  preferences: AppPreferences,
+  storage: PreferencesStorage,
+): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+    storage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   } catch {
     // Preferences remain active for the current tab if persistence is blocked.
   }
+}
+
+export function saveAppPreferences(preferences: AppPreferences): void {
+  saveAppPreferencesToStorage(preferences, window.localStorage);
 }
