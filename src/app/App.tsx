@@ -22,6 +22,7 @@ import {
   saveAppPreferences,
   type AppPreferences,
 } from "./appPreferences";
+import { getText } from "./i18n";
 
 type ScreenState =
   | { kind: "home" }
@@ -128,10 +129,16 @@ export function App() {
         activeNotes={activeNotes}
         backLabel={
           screen.returnTo === "home"
-            ? "Назад на главный экран"
+            ? getText(preferences.interfaceLanguage, "common.backToHome")
             : screen.returnTo === "note-setup"
-              ? "Назад к настройке нот"
-              : "Назад к настройке интервалов"
+              ? getText(
+                  preferences.interfaceLanguage,
+                  "common.backToNoteSetup",
+                )
+              : getText(
+                  preferences.interfaceLanguage,
+                  "common.backToIntervalSetup",
+                )
         }
         midiErrorMessage={errorMessage}
         midiInputs={inputs}
@@ -195,6 +202,7 @@ export function App() {
   if (screen.kind === "home") {
     return (
       <HomeScreen
+        language={preferences.interfaceLanguage}
         onOpenIntervalTraining={() => setScreen({ kind: "interval-setup" })}
         onOpenNoteTraining={() => setScreen({ kind: "note-setup" })}
         onOpenSettings={() =>

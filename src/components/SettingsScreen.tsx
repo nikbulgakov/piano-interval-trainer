@@ -4,6 +4,7 @@ import {
   formatNoteName,
   type AppPreferences,
 } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import type { SynthPreset } from "../audio/synthSettings";
 import type { MidiInputInfo, MidiStatus } from "../midi/useMidiInput";
 import { MidiConnectionCard } from "./MidiConnectionCard";
@@ -36,6 +37,8 @@ export function SettingsScreen({
   selectedInputId,
 }: SettingsScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -59,15 +62,11 @@ export function SettingsScreen({
     <main className="app-shell settings-screen">
       <header className="hero settings-hero">
         <div>
-          <p className="eyebrow">Настройки приложения</p>
+          <p className="eyebrow">{t("settings.eyebrow")}</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Обозначения и звук
+            {t("settings.title")}
           </h1>
-          <p className="hero-copy">
-            Выбранные форматы используются в настройке, практике,
-            MIDI-мониторе и на экранной клавиатуре. Звук реагирует на
-            физическую MIDI-клавиатуру.
-          </p>
+          <p className="hero-copy">{t("settings.copy")}</p>
         </div>
         <button className="secondary-button" onClick={onBack} type="button">
           {backLabel}
@@ -77,15 +76,54 @@ export function SettingsScreen({
       <section className="settings-card" aria-labelledby="notation-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Общие настройки</p>
-            <h2 id="notation-title">Как показывать задания</h2>
+            <p className="eyebrow">{t("settings.general.eyebrow")}</p>
+            <h2 id="notation-title">{t("settings.general.title")}</h2>
           </div>
         </div>
 
         <fieldset className="preference-group">
-          <legend>Обозначения нот</legend>
+          <legend>{t("settings.language.title")}</legend>
           <p className="preference-description">
-            Настройка применяется одновременно ко всем белым и чёрным клавишам.
+            {t("settings.language.description")}
+          </p>
+          <div className="preference-grid">
+            <label className="preference-option">
+              <input
+                checked={preferences.interfaceLanguage === "ru"}
+                name="interface-language"
+                onChange={() =>
+                  onChange({ ...preferences, interfaceLanguage: "ru" })
+                }
+                type="radio"
+                value="ru"
+              />
+              <span>
+                <strong>{t("settings.language.ru")}</strong>
+                <small>{t("settings.language.ruDescription")}</small>
+              </span>
+            </label>
+            <label className="preference-option">
+              <input
+                checked={preferences.interfaceLanguage === "en"}
+                name="interface-language"
+                onChange={() =>
+                  onChange({ ...preferences, interfaceLanguage: "en" })
+                }
+                type="radio"
+                value="en"
+              />
+              <span>
+                <strong>{t("settings.language.en")}</strong>
+                <small>{t("settings.language.enDescription")}</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="preference-group">
+          <legend>{t("settings.noteNotation.legend")}</legend>
+          <p className="preference-description">
+            {t("settings.noteNotation.description")}
           </p>
           <div className="preference-grid">
             <label className="preference-option">
@@ -99,7 +137,7 @@ export function SettingsScreen({
                 value="russian"
               />
               <span>
-                <strong>Русские</strong>
+                <strong>{t("settings.noteNotation.russian")}</strong>
                 <small>До, До♯/Ре♭, Ре</small>
               </span>
             </label>
@@ -114,7 +152,7 @@ export function SettingsScreen({
                 value="latin"
               />
               <span>
-                <strong>Латинские</strong>
+                <strong>{t("settings.noteNotation.latin")}</strong>
                 <small>C, C♯/D♭, D</small>
               </span>
             </label>
@@ -122,7 +160,7 @@ export function SettingsScreen({
         </fieldset>
 
         <fieldset className="preference-group">
-          <legend>Обозначения интервалов</legend>
+          <legend>{t("settings.intervalNotation.legend")}</legend>
           <div className="preference-grid">
             <label className="preference-option">
               <input
@@ -135,7 +173,7 @@ export function SettingsScreen({
                 value="name"
               />
               <span>
-                <strong>Полные названия</strong>
+                <strong>{t("settings.intervalNotation.names")}</strong>
                 <small>малая терция, чистая квинта</small>
               </span>
             </label>
@@ -150,7 +188,7 @@ export function SettingsScreen({
                 value="symbol"
               />
               <span>
-                <strong>Краткие обозначения</strong>
+                <strong>{t("settings.intervalNotation.symbols")}</strong>
                 <small>m3, P5</small>
               </span>
             </label>
@@ -158,7 +196,7 @@ export function SettingsScreen({
         </fieldset>
 
         <div className="preference-preview" aria-live="polite">
-          <span>Пример задания</span>
+          <span>{t("settings.preview.label")}</span>
           <strong>
             {formatNoteName(1, preferences.noteNotation)} —{" "}
             {formatIntervalName(3, preferences.intervalNotation)}
@@ -169,8 +207,8 @@ export function SettingsScreen({
       <section className="settings-card" aria-labelledby="sound-title">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Звук</p>
-            <h2 id="sound-title">Как звучит MIDI-клавиатура</h2>
+            <p className="eyebrow">{t("settings.sound.eyebrow")}</p>
+            <h2 id="sound-title">{t("settings.sound.title")}</h2>
           </div>
         </div>
 
@@ -181,16 +219,13 @@ export function SettingsScreen({
             type="checkbox"
           />
           <span>
-            <strong>Включить звук клавиш</strong>
-            <small>
-              Звук запускается от физической MIDI-клавиатуры и не влияет на
-              проверку ответов.
-            </small>
+            <strong>{t("settings.sound.enable")}</strong>
+            <small>{t("settings.sound.description")}</small>
           </span>
         </label>
 
         <fieldset className="preference-group">
-          <legend>Тембр</legend>
+          <legend>{t("settings.sound.presetLegend")}</legend>
           <div className="preference-grid synth-preset-grid">
             <label className="preference-option">
               <input
@@ -201,8 +236,8 @@ export function SettingsScreen({
                 value="piano"
               />
               <span>
-                <strong>Пианино</strong>
-                <small>Реалистичный sample-based звук</small>
+                <strong>{t("settings.sound.piano")}</strong>
+                <small>{t("settings.sound.pianoDescription")}</small>
               </span>
             </label>
             <label className="preference-option">
@@ -214,8 +249,8 @@ export function SettingsScreen({
                 value="synth"
               />
               <span>
-                <strong>Синт</strong>
-                <small>Более яркий удерживаемый звук</small>
+                <strong>{t("settings.sound.synth")}</strong>
+                <small>{t("settings.sound.synthDescription")}</small>
               </span>
             </label>
             <label className="preference-option">
@@ -227,8 +262,8 @@ export function SettingsScreen({
                 value="electric-piano"
               />
               <span>
-                <strong>Электропиано</strong>
-                <small>Мягкий округлый тембр</small>
+                <strong>{t("settings.sound.electricPiano")}</strong>
+                <small>{t("settings.sound.electricPianoDescription")}</small>
               </span>
             </label>
           </div>
@@ -236,7 +271,7 @@ export function SettingsScreen({
 
         <label className="volume-control">
           <span>
-            <strong>Громкость</strong>
+            <strong>{t("settings.sound.volume")}</strong>
             <small>{Math.round(preferences.synth.volume * 100)}%</small>
           </span>
           <input

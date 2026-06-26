@@ -1,17 +1,22 @@
 import { useEffect, useRef } from "react";
+import type { InterfaceLanguage } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 
 type HomeScreenProps = {
+  language: InterfaceLanguage;
   onOpenIntervalTraining: () => void;
   onOpenNoteTraining: () => void;
   onOpenSettings: () => void;
 };
 
 export function HomeScreen({
+  language,
   onOpenIntervalTraining,
   onOpenNoteTraining,
   onOpenSettings,
 }: HomeScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const t = (key: Parameters<typeof getText>[1]) => getText(language, key);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -23,19 +28,16 @@ export function HomeScreen({
         <div>
           <p className="eyebrow">Key Sense</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Выберите тренировку
+            {t("home.title")}
           </h1>
-          <p className="hero-copy">
-            Сначала выберите навык, затем подключите MIDI-клавиатуру и настройте
-            упражнение.
-          </p>
+          <p className="hero-copy">{t("home.copy")}</p>
         </div>
         <button
           className="secondary-button"
           onClick={onOpenSettings}
           type="button"
         >
-          Настройки приложения
+          {t("common.appSettings")}
         </button>
       </header>
 
@@ -45,8 +47,8 @@ export function HomeScreen({
       >
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Режимы</p>
-            <h2 id="training-mode-title">Что будем искать на клавиатуре</h2>
+            <p className="eyebrow">{t("home.modes.eyebrow")}</p>
+            <h2 id="training-mode-title">{t("home.modes.title")}</h2>
           </div>
         </div>
 
@@ -56,15 +58,21 @@ export function HomeScreen({
             onClick={onOpenIntervalTraining}
             type="button"
           >
-            <span className="training-mode-status">Доступно</span>
+            <span className="training-mode-status">
+              {t("common.available")}
+            </span>
             <span aria-hidden="true" className="training-mode-symbol">
               m3
             </span>
-            <span className="training-mode-title">Интервалы</span>
-            <span className="training-mode-description">
-              Стройте восходящие гармонические интервалы от заданной ноты.
+            <span className="training-mode-title">
+              {t("home.intervals.title")}
             </span>
-            <span className="training-mode-action">Настроить тренировку →</span>
+            <span className="training-mode-description">
+              {t("home.intervals.description")}
+            </span>
+            <span className="training-mode-action">
+              {t("home.configureTraining")}
+            </span>
           </button>
 
           <button
@@ -72,21 +80,27 @@ export function HomeScreen({
             onClick={onOpenNoteTraining}
             type="button"
           >
-            <span className="training-mode-status">Доступно</span>
+            <span className="training-mode-status">
+              {t("common.available")}
+            </span>
             <span aria-hidden="true" className="training-mode-symbol">
-              До
+              {language === "ru" ? "До" : "C"}
             </span>
-            <span className="training-mode-title">Одиночные ноты</span>
+            <span className="training-mode-title">
+              {t("home.notes.title")}
+            </span>
             <span className="training-mode-description">
-              Находите на клавиатуре одну ноту, показанную в задании.
+              {t("home.notes.description")}
             </span>
-            <span className="training-mode-action">Настроить тренировку →</span>
+            <span className="training-mode-action">
+              {t("home.configureTraining")}
+            </span>
           </button>
         </div>
       </section>
 
       <footer className="app-footer">
-        MIDI-доступ запрашивается только после выбора и настройки тренировки.
+        {t("home.footer")}
       </footer>
     </main>
   );
