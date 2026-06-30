@@ -2,8 +2,11 @@ export type PitchClass = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
 export type PitchClassInfo = {
   value: PitchClass;
-  latinName: string;
-  russianName: string;
+  letterName: string;
+  solfegeNames: {
+    ru: string;
+    en: string;
+  };
   isBlack: boolean;
 };
 
@@ -21,40 +24,179 @@ export type IntervalSemitones =
   | 11
   | 12;
 
+type LocalizedIntervalNames = {
+  full: string;
+  short: string;
+};
+
 export type IntervalInfo = {
   semitones: IntervalSemitones;
-  shortName: string;
-  russianName: string;
+  names: {
+    ru: LocalizedIntervalNames;
+    en: LocalizedIntervalNames;
+  };
 };
 
 export const PITCH_CLASSES: readonly PitchClassInfo[] = [
-  { value: 0, latinName: "C", russianName: "До", isBlack: false },
-  { value: 1, latinName: "C♯/D♭", russianName: "До♯/Ре♭", isBlack: true },
-  { value: 2, latinName: "D", russianName: "Ре", isBlack: false },
-  { value: 3, latinName: "D♯/E♭", russianName: "Ре♯/Ми♭", isBlack: true },
-  { value: 4, latinName: "E", russianName: "Ми", isBlack: false },
-  { value: 5, latinName: "F", russianName: "Фа", isBlack: false },
-  { value: 6, latinName: "F♯/G♭", russianName: "Фа♯/Соль♭", isBlack: true },
-  { value: 7, latinName: "G", russianName: "Соль", isBlack: false },
-  { value: 8, latinName: "G♯/A♭", russianName: "Соль♯/Ля♭", isBlack: true },
-  { value: 9, latinName: "A", russianName: "Ля", isBlack: false },
-  { value: 10, latinName: "A♯/B♭", russianName: "Ля♯/Си♭", isBlack: true },
-  { value: 11, latinName: "B", russianName: "Си", isBlack: false },
+  {
+    value: 0,
+    letterName: "C",
+    solfegeNames: { ru: "До", en: "Do" },
+    isBlack: false,
+  },
+  {
+    value: 1,
+    letterName: "C♯/D♭",
+    solfegeNames: { ru: "До♯/Ре♭", en: "Do♯/Re♭" },
+    isBlack: true,
+  },
+  {
+    value: 2,
+    letterName: "D",
+    solfegeNames: { ru: "Ре", en: "Re" },
+    isBlack: false,
+  },
+  {
+    value: 3,
+    letterName: "D♯/E♭",
+    solfegeNames: { ru: "Ре♯/Ми♭", en: "Re♯/Mi♭" },
+    isBlack: true,
+  },
+  {
+    value: 4,
+    letterName: "E",
+    solfegeNames: { ru: "Ми", en: "Mi" },
+    isBlack: false,
+  },
+  {
+    value: 5,
+    letterName: "F",
+    solfegeNames: { ru: "Фа", en: "Fa" },
+    isBlack: false,
+  },
+  {
+    value: 6,
+    letterName: "F♯/G♭",
+    solfegeNames: { ru: "Фа♯/Соль♭", en: "Fa♯/Sol♭" },
+    isBlack: true,
+  },
+  {
+    value: 7,
+    letterName: "G",
+    solfegeNames: { ru: "Соль", en: "Sol" },
+    isBlack: false,
+  },
+  {
+    value: 8,
+    letterName: "G♯/A♭",
+    solfegeNames: { ru: "Соль♯/Ля♭", en: "Sol♯/La♭" },
+    isBlack: true,
+  },
+  {
+    value: 9,
+    letterName: "A",
+    solfegeNames: { ru: "Ля", en: "La" },
+    isBlack: false,
+  },
+  {
+    value: 10,
+    letterName: "A♯/B♭",
+    solfegeNames: { ru: "Ля♯/Си♭", en: "La♯/Si♭" },
+    isBlack: true,
+  },
+  {
+    value: 11,
+    letterName: "B",
+    solfegeNames: { ru: "Си", en: "Si" },
+    isBlack: false,
+  },
 ];
 
 export const INTERVALS: readonly IntervalInfo[] = [
-  { semitones: 1, shortName: "m2", russianName: "малая секунда" },
-  { semitones: 2, shortName: "M2", russianName: "большая секунда" },
-  { semitones: 3, shortName: "m3", russianName: "малая терция" },
-  { semitones: 4, shortName: "M3", russianName: "большая терция" },
-  { semitones: 5, shortName: "P4", russianName: "чистая кварта" },
-  { semitones: 6, shortName: "TT", russianName: "тритон" },
-  { semitones: 7, shortName: "P5", russianName: "чистая квинта" },
-  { semitones: 8, shortName: "m6", russianName: "малая секста" },
-  { semitones: 9, shortName: "M6", russianName: "большая секста" },
-  { semitones: 10, shortName: "m7", russianName: "малая септима" },
-  { semitones: 11, shortName: "M7", russianName: "большая септима" },
-  { semitones: 12, shortName: "P8", russianName: "чистая октава" },
+  {
+    semitones: 1,
+    names: {
+      ru: { full: "малая секунда", short: "м2" },
+      en: { full: "minor second", short: "m2" },
+    },
+  },
+  {
+    semitones: 2,
+    names: {
+      ru: { full: "большая секунда", short: "б2" },
+      en: { full: "major second", short: "M2" },
+    },
+  },
+  {
+    semitones: 3,
+    names: {
+      ru: { full: "малая терция", short: "м3" },
+      en: { full: "minor third", short: "m3" },
+    },
+  },
+  {
+    semitones: 4,
+    names: {
+      ru: { full: "большая терция", short: "б3" },
+      en: { full: "major third", short: "M3" },
+    },
+  },
+  {
+    semitones: 5,
+    names: {
+      ru: { full: "чистая кварта", short: "ч4" },
+      en: { full: "perfect fourth", short: "P4" },
+    },
+  },
+  {
+    semitones: 6,
+    names: {
+      ru: { full: "тритон", short: "тритон" },
+      en: { full: "tritone", short: "TT" },
+    },
+  },
+  {
+    semitones: 7,
+    names: {
+      ru: { full: "чистая квинта", short: "ч5" },
+      en: { full: "perfect fifth", short: "P5" },
+    },
+  },
+  {
+    semitones: 8,
+    names: {
+      ru: { full: "малая секста", short: "м6" },
+      en: { full: "minor sixth", short: "m6" },
+    },
+  },
+  {
+    semitones: 9,
+    names: {
+      ru: { full: "большая секста", short: "б6" },
+      en: { full: "major sixth", short: "M6" },
+    },
+  },
+  {
+    semitones: 10,
+    names: {
+      ru: { full: "малая септима", short: "м7" },
+      en: { full: "minor seventh", short: "m7" },
+    },
+  },
+  {
+    semitones: 11,
+    names: {
+      ru: { full: "большая септима", short: "б7" },
+      en: { full: "major seventh", short: "M7" },
+    },
+  },
+  {
+    semitones: 12,
+    names: {
+      ru: { full: "чистая октава", short: "ч8" },
+      en: { full: "perfect octave", short: "P8" },
+    },
+  },
 ];
 
 export function normalizePitchClass(value: number): PitchClass {
@@ -70,4 +212,3 @@ export function getIntervalInfo(
 ): IntervalInfo | undefined {
   return INTERVALS.find((interval) => interval.semitones === semitones);
 }
-

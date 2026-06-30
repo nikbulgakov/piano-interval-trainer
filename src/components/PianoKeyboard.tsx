@@ -2,6 +2,7 @@ import {
   formatNoteName,
   type AppPreferences,
 } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import {
   getKeyboardNotes,
   PRACTICE_MAX_NOTE,
@@ -26,29 +27,36 @@ function getBlackKeyPosition(midiNote: number): number {
 }
 
 export function PianoKeyboard({ activeNotes, preferences }: PianoKeyboardProps) {
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
   const activeNoteNames = keyboardNotes
     .filter((note) => activeNotes.has(note.midiNote))
     .map(
       (note) =>
-        `${formatNoteName(note.pitchClass, preferences.noteNotation)}, MIDI ${note.midiNote}`,
+        `${formatNoteName(
+          note.pitchClass,
+          preferences.noteNotation,
+          preferences.interfaceLanguage,
+        )}, MIDI ${note.midiNote}`,
     );
 
   return (
     <section className="keyboard-section" aria-labelledby="keyboard-title">
       <div className="keyboard-heading">
         <div>
-          <p className="eyebrow">Монитор нажатий</p>
-          <h2 id="keyboard-title">Экранная клавиатура</h2>
+          <p className="eyebrow">{t("keyboard.eyebrow")}</p>
+          <h2 id="keyboard-title">{t("keyboard.title")}</h2>
         </div>
         <p className="keyboard-range">
-          MIDI {PRACTICE_MIN_NOTE}–{PRACTICE_MAX_NOTE} · 3 октавы
+          MIDI {PRACTICE_MIN_NOTE}–{PRACTICE_MAX_NOTE} ·{" "}
+          {t("keyboard.rangeSuffix")}
         </p>
       </div>
 
       <p aria-live="polite" className="visually-hidden" role="status">
         {activeNoteNames.length > 0
-          ? `Нажаты: ${activeNoteNames.join(", ")}`
-          : "Клавиши не нажаты"}
+          ? `${t("keyboard.activePrefix")} ${activeNoteNames.join(", ")}`
+          : t("keyboard.empty")}
       </p>
 
       <div className="piano" aria-hidden="true">
@@ -62,7 +70,11 @@ export function PianoKeyboard({ activeNotes, preferences }: PianoKeyboardProps) 
                 key={note.midiNote}
               >
                 <span>
-                  {formatNoteName(note.pitchClass, preferences.noteNotation)}
+                  {formatNoteName(
+                    note.pitchClass,
+                    preferences.noteNotation,
+                    preferences.interfaceLanguage,
+                  )}
                 </span>
               </div>
             );

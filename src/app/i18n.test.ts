@@ -19,4 +19,23 @@ describe("i18n", () => {
 
     expect(getText("en", key)).toBe("Interface language");
   });
+
+  it("uses exercise display wording for notation settings", () => {
+    expect(getText("ru", "settings.general.title")).toBe(
+      "Отображение заданий",
+    );
+    expect(getText("en", "settings.general.title")).toBe("Exercise display");
+    expect(getText("ru", "settings.noteNotation.russian")).toBe(
+      "Сольфеджио",
+    );
+    expect(getText("en", "settings.noteNotation.russian")).toBe(
+      "Solfège names",
+    );
+    expect(getText("ru", "settings.intervalNotation.symbols")).toBe(
+      "Сокращения",
+    );
+    expect(getText("en", "settings.intervalNotation.symbols")).toBe(
+      "Abbreviations",
+    );
+  });
 });

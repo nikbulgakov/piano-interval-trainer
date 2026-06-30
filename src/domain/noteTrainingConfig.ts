@@ -30,18 +30,18 @@ export function validateNoteTrainingConfig(
   const errors: NoteTrainingConfigErrors = {};
 
   if (config.pitchClasses.length === 0) {
-    errors.pitchClasses = "Выберите хотя бы одну ноту.";
+    errors.pitchClasses = "validation.notePitchClassesRequired";
   }
 
   if (!isIntegerInRange(config.durationMinutes, 1, 60)) {
-    errors.durationMinutes = "Укажите целое число от 1 до 60 минут.";
+    errors.durationMinutes = "validation.durationMinutes";
   }
 
   if (
     config.mode === "timed" &&
     !isIntegerInRange(config.promptPeriodSeconds, 1, 30)
   ) {
-    errors.promptPeriodSeconds = "Укажите целое число от 1 до 30 секунд.";
+    errors.promptPeriodSeconds = "validation.promptPeriodSeconds";
   }
 
   return errors;

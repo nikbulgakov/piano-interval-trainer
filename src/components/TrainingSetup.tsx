@@ -4,6 +4,7 @@ import {
   formatNoteName,
   type AppPreferences,
 } from "../app/appPreferences";
+import { getText, type TextKey } from "../app/i18n";
 import {
   validateTrainingConfig,
   type TrainingConfig,
@@ -21,6 +22,7 @@ export function TrainingSetup({
   preferences,
 }: TrainingSetupProps) {
   const errors = validateTrainingConfig(config);
+  const t = (key: TextKey) => getText(preferences.interfaceLanguage, key);
 
   const togglePitchClass = (pitchClass: (typeof PITCH_CLASSES)[number]["value"]) => {
     const isSelected = config.pitchClasses.includes(pitchClass);
@@ -48,12 +50,12 @@ export function TrainingSetup({
     <section className="training-card" aria-labelledby="setup-title">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Настройка</p>
-          <h2 id="setup-title">Что тренируем</h2>
+          <p className="eyebrow">{t("common.setup")}</p>
+          <h2 id="setup-title">{t("setup.trainingMaterial")}</h2>
         </div>
         <span className="selection-summary">
-          Нот: {config.pitchClasses.length} · Интервалов:{" "}
-          {config.intervalSemitones.length}
+          {t("setup.notes.count")}: {config.pitchClasses.length} ·{" "}
+          {t("setup.intervals.count")}: {config.intervalSemitones.length}
         </span>
       </div>
 
@@ -62,7 +64,7 @@ export function TrainingSetup({
         className="setup-group"
       >
         <div className="group-heading">
-          <legend>Исходные ноты</legend>
+          <legend>{t("setup.notes.legend")}</legend>
           <div className="group-actions">
             <button
               className="text-button"
@@ -74,14 +76,14 @@ export function TrainingSetup({
               }
               type="button"
             >
-              Выбрать все
+              {t("setup.selectAll")}
             </button>
             <button
               className="text-button"
               onClick={() => onChange({ ...config, pitchClasses: [] })}
               type="button"
             >
-              Снять
+              {t("setup.clear")}
             </button>
           </div>
         </div>
@@ -97,14 +99,20 @@ export function TrainingSetup({
                 onClick={() => togglePitchClass(note.value)}
                 type="button"
               >
-                <span>{formatNoteName(note.value, preferences.noteNotation)}</span>
+                <span>
+                  {formatNoteName(
+                    note.value,
+                    preferences.noteNotation,
+                    preferences.interfaceLanguage,
+                  )}
+                </span>
               </button>
             );
           })}
         </div>
         {errors.pitchClasses && (
           <p className="field-error" id="pitch-classes-error">
-            {errors.pitchClasses}
+            {t(errors.pitchClasses as TextKey)}
           </p>
         )}
       </fieldset>
@@ -114,7 +122,7 @@ export function TrainingSetup({
         className="setup-group"
       >
         <div className="group-heading">
-          <legend>Интервалы</legend>
+          <legend>{t("setup.intervals.legend")}</legend>
           <div className="group-actions">
             <button
               className="text-button"
@@ -128,14 +136,14 @@ export function TrainingSetup({
               }
               type="button"
             >
-              Выбрать все
+              {t("setup.selectAll")}
             </button>
             <button
               className="text-button"
               onClick={() => onChange({ ...config, intervalSemitones: [] })}
               type="button"
             >
-              Снять
+              {t("setup.clear")}
             </button>
           </div>
         </div>
@@ -157,6 +165,7 @@ export function TrainingSetup({
                   {formatIntervalName(
                     interval.semitones,
                     preferences.intervalNotation,
+                    preferences.interfaceLanguage,
                   )}
                 </span>
               </button>
@@ -165,14 +174,14 @@ export function TrainingSetup({
         </div>
         {errors.intervalSemitones && (
           <p className="field-error" id="intervals-error">
-            {errors.intervalSemitones}
+            {t(errors.intervalSemitones as TextKey)}
           </p>
         )}
       </fieldset>
 
       <div className="session-settings">
         <fieldset className="setup-group compact-group">
-          <legend>Режим</legend>
+          <legend>{t("setup.mode.legend")}</legend>
           <div className="mode-grid">
             <label className="mode-option">
               <input
@@ -183,8 +192,8 @@ export function TrainingSetup({
                 value="sequential"
               />
               <span>
-                <strong>Последовательный</strong>
-                <small>Новое задание после правильного ответа</small>
+                <strong>{t("common.sequential")}</strong>
+                <small>{t("setup.mode.sequentialDescription")}</small>
               </span>
             </label>
             <label className="mode-option">
@@ -196,8 +205,8 @@ export function TrainingSetup({
                 value="timed"
               />
               <span>
-                <strong>На время</strong>
-                <small>Следующее задание сразу после ответа или по таймеру</small>
+                <strong>{t("common.timed")}</strong>
+                <small>{t("setup.mode.timedDescription")}</small>
               </span>
             </label>
           </div>
@@ -205,7 +214,7 @@ export function TrainingSetup({
 
         <div className="number-fields">
           <label className="number-field">
-            <span>Длительность, мин</span>
+            <span>{t("setup.durationMinutes")}</span>
             <input
               aria-describedby={
                 errors.durationMinutes ? "duration-minutes-error" : undefined
@@ -225,14 +234,14 @@ export function TrainingSetup({
             />
             {errors.durationMinutes && (
               <small className="field-error" id="duration-minutes-error">
-                {errors.durationMinutes}
+                {t(errors.durationMinutes as TextKey)}
               </small>
             )}
           </label>
 
           {config.mode === "timed" && (
             <label className="number-field">
-              <span>Время на задание, сек</span>
+              <span>{t("setup.promptPeriodSeconds")}</span>
               <input
                 aria-describedby={
                   errors.promptPeriodSeconds
@@ -254,7 +263,7 @@ export function TrainingSetup({
               />
               {errors.promptPeriodSeconds && (
                 <small className="field-error" id="prompt-period-error">
-                  {errors.promptPeriodSeconds}
+                  {t(errors.promptPeriodSeconds as TextKey)}
                 </small>
               )}
             </label>

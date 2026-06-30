@@ -21,8 +21,8 @@ describe("training config validation", () => {
       configWith({ pitchClasses: [], intervalSemitones: [] }),
     );
 
-    expect(errors.pitchClasses).toBeDefined();
-    expect(errors.intervalSemitones).toBeDefined();
+    expect(errors.pitchClasses).toBe("validation.intervalPitchClassesRequired");
+    expect(errors.intervalSemitones).toBe("validation.intervalsRequired");
   });
 
   it("accepts only whole session minutes from 1 to 60", () => {
@@ -55,4 +55,3 @@ describe("training config validation", () => {
     ).toEqual({});
   });
 });
-

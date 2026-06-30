@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { AppPreferences } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import type { TrainingConfig } from "../domain/trainingConfig";
 import type {
   MidiInputInfo,
@@ -41,6 +42,8 @@ export function SetupScreen({
   preferences,
 }: SetupScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -50,14 +53,11 @@ export function SetupScreen({
     <main className="app-shell">
       <header className="hero">
         <div>
-          <p className="eyebrow">Тренировка интервалов</p>
+          <p className="eyebrow">{t("common.intervalTraining")}</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Настройте интервалы
+            {t("setup.interval.title")}
           </h1>
-          <p className="hero-copy">
-            Подключите MIDI-клавиатуру, выберите материал и запустите отдельный
-            экран практики без лишних настроек.
-          </p>
+          <p className="hero-copy">{t("setup.interval.copy")}</p>
         </div>
         <div className="hero-actions">
           <button
@@ -65,14 +65,14 @@ export function SetupScreen({
             onClick={onReturnHome}
             type="button"
           >
-            На главный экран
+            {t("common.backToHome")}
           </button>
           <button
             className="secondary-button"
             onClick={onOpenSettings}
             type="button"
           >
-            Настройки приложения
+            {t("common.appSettings")}
           </button>
         </div>
       </header>
@@ -103,8 +103,7 @@ export function SetupScreen({
       </div>
 
       <footer className="app-footer">
-        MIDI-данные обрабатываются только в этом браузере и никуда не
-        отправляются.
+        {t("setup.footer")}
       </footer>
     </main>
   );

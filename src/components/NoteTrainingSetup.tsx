@@ -1,4 +1,5 @@
 import { formatNoteName, type AppPreferences } from "../app/appPreferences";
+import { getText, type TextKey } from "../app/i18n";
 import { PITCH_CLASSES } from "../domain/music";
 import {
   validateNoteTrainingConfig,
@@ -17,6 +18,7 @@ export function NoteTrainingSetup({
   preferences,
 }: NoteTrainingSetupProps) {
   const errors = validateNoteTrainingConfig(config);
+  const t = (key: TextKey) => getText(preferences.interfaceLanguage, key);
 
   const togglePitchClass = (
     pitchClass: (typeof PITCH_CLASSES)[number]["value"],
@@ -33,11 +35,11 @@ export function NoteTrainingSetup({
     <section className="training-card" aria-labelledby="note-setup-title">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">Настройка</p>
-          <h2 id="note-setup-title">Какие ноты ищем</h2>
+          <p className="eyebrow">{t("common.setup")}</p>
+          <h2 id="note-setup-title">{t("setup.notesToFind")}</h2>
         </div>
         <span className="selection-summary">
-          Выбрано: {config.pitchClasses.length}
+          {t("common.notes")}: {config.pitchClasses.length}
         </span>
       </div>
 
@@ -48,7 +50,7 @@ export function NoteTrainingSetup({
         className="setup-group"
       >
         <div className="group-heading">
-          <legend>Ноты</legend>
+          <legend>{t("common.notes")}</legend>
           <div className="group-actions">
             <button
               className="text-button"
@@ -60,14 +62,14 @@ export function NoteTrainingSetup({
               }
               type="button"
             >
-              Выбрать все
+              {t("setup.selectAll")}
             </button>
             <button
               className="text-button"
               onClick={() => onChange({ ...config, pitchClasses: [] })}
               type="button"
             >
-              Снять
+              {t("setup.clear")}
             </button>
           </div>
         </div>
@@ -85,7 +87,11 @@ export function NoteTrainingSetup({
                 type="button"
               >
                 <span>
-                  {formatNoteName(note.value, preferences.noteNotation)}
+                  {formatNoteName(
+                    note.value,
+                    preferences.noteNotation,
+                    preferences.interfaceLanguage,
+                  )}
                 </span>
               </button>
             );
@@ -94,14 +100,14 @@ export function NoteTrainingSetup({
 
         {errors.pitchClasses && (
           <p className="field-error" id="note-pitch-classes-error">
-            {errors.pitchClasses}
+            {t(errors.pitchClasses as TextKey)}
           </p>
         )}
       </fieldset>
 
       <div className="session-settings note-session-settings">
         <fieldset className="setup-group compact-group">
-          <legend>Режим</legend>
+          <legend>{t("setup.mode.legend")}</legend>
           <div className="mode-grid">
             <label className="mode-option">
               <input
@@ -112,8 +118,8 @@ export function NoteTrainingSetup({
                 value="sequential"
               />
               <span>
-                <strong>Последовательный</strong>
-                <small>Новая нота после правильного ответа</small>
+                <strong>{t("common.sequential")}</strong>
+                <small>{t("setup.mode.noteSequentialDescription")}</small>
               </span>
             </label>
             <label className="mode-option">
@@ -125,8 +131,8 @@ export function NoteTrainingSetup({
                 value="timed"
               />
               <span>
-                <strong>На время</strong>
-                <small>Следующая нота сразу после ответа или по таймеру</small>
+                <strong>{t("common.timed")}</strong>
+                <small>{t("setup.mode.noteTimedDescription")}</small>
               </span>
             </label>
           </div>
@@ -136,7 +142,7 @@ export function NoteTrainingSetup({
           className={`number-fields${config.mode === "sequential" ? " single-number-field" : ""}`}
         >
           <label className="number-field">
-            <span>Длительность, мин</span>
+            <span>{t("setup.durationMinutes")}</span>
             <input
               aria-describedby={
                 errors.durationMinutes ? "note-duration-error" : undefined
@@ -156,14 +162,14 @@ export function NoteTrainingSetup({
             />
             {errors.durationMinutes && (
               <small className="field-error" id="note-duration-error">
-                {errors.durationMinutes}
+                {t(errors.durationMinutes as TextKey)}
               </small>
             )}
           </label>
 
           {config.mode === "timed" && (
             <label className="number-field">
-              <span>Время на ноту, сек</span>
+              <span>{t("setup.notePromptPeriodSeconds")}</span>
               <input
                 aria-describedby={
                   errors.promptPeriodSeconds
@@ -185,7 +191,7 @@ export function NoteTrainingSetup({
               />
               {errors.promptPeriodSeconds && (
                 <small className="field-error" id="note-prompt-period-error">
-                  {errors.promptPeriodSeconds}
+                  {t(errors.promptPeriodSeconds as TextKey)}
                 </small>
               )}
             </label>
