@@ -3,6 +3,7 @@ import {
   formatIntervalName,
   type AppPreferences,
 } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import {
   createPracticeNoteDisplay,
   formatPracticeNoteDisplay,
@@ -56,6 +57,8 @@ export function PracticeScreen({
   onReturnToSetup,
   preferences,
 }: PracticeScreenProps) {
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
   const [timing] = useState(() => {
     const startedAt = performance.now();
 
@@ -119,12 +122,17 @@ export function PracticeScreen({
     [currentTask, rootDisplayKey],
   );
   const rootName = rootDisplay
-    ? formatPracticeNoteDisplay(rootDisplay, preferences.noteNotation)
+    ? formatPracticeNoteDisplay(
+        rootDisplay,
+        preferences.noteNotation,
+        preferences.interfaceLanguage,
+      )
     : "";
   const intervalName = currentTask
     ? formatIntervalName(
         currentTask.intervalSemitones,
         preferences.intervalNotation,
+        preferences.interfaceLanguage,
       )
     : "";
 
@@ -253,23 +261,23 @@ export function PracticeScreen({
     timing.endsAt,
   ]);
 
-  let feedbackText = "Нажмите исходную и верхнюю ноту одновременно.";
+  let feedbackText = t("practice.feedback.intervalInitial");
   let feedbackTone = "neutral";
 
   if (!midiIsReady) {
-    feedbackText = "MIDI-клавиатура отключена. Подключите её снова.";
+    feedbackText = t("practice.feedback.midiDisconnected");
     feedbackTone = "warning";
   } else if (runtime.session.feedback === "correct") {
     feedbackText =
       runtime.mode === "timed"
-        ? "Правильно. Следующее задание уже на экране — отпустите клавиши."
-        : "Правильно. Отпустите клавиши для следующего задания.";
+        ? t("practice.feedback.timedCorrect")
+        : t("practice.feedback.sequentialCorrect");
     feedbackTone = "correct";
   } else if (runtime.session.feedback === "incorrect") {
-    feedbackText = "Не тот интервал — отпустите одну клавишу и попробуйте ещё.";
+    feedbackText = t("practice.feedback.intervalIncorrect");
     feedbackTone = "incorrect";
   } else if (runtime.session.phase === "waiting-for-release") {
-    feedbackText = "Отпустите клавиши, чтобы начать.";
+    feedbackText = t("practice.feedback.releaseToStart");
   }
 
   return (
@@ -278,18 +286,22 @@ export function PracticeScreen({
         <div>
           <p className="eyebrow">
             {runtime.mode === "timed"
-              ? "Режим на время"
-              : "Последовательный режим"}
+              ? t("common.timedMode")
+              : t("common.sequentialMode")}
           </p>
           <p className="practice-score">
-            Правильно: {runtime.session.correctAnswers} · Ошибок:{" "}
+            {t("common.scoreCorrect")}: {runtime.session.correctAnswers} ·{" "}
+            {t("common.errors")}:{" "}
             {runtime.session.wrongAttempts}
             {runtime.mode === "timed" && (
-              <> · Пропусков: {runtime.session.missedTasks}</>
+              <>
+                {" "}
+                · {t("common.missed")}: {runtime.session.missedTasks}
+              </>
             )}
           </p>
         </div>
-        <time className="session-timer" aria-label="Оставшееся время">
+        <time className="session-timer" aria-label={t("practice.remainingTime")}>
           {formatDuration(remainingMilliseconds)}
         </time>
         <button
@@ -297,14 +309,14 @@ export function PracticeScreen({
           onClick={() => finish(true)}
           type="button"
         >
-          Завершить
+          {t("common.stop")}
         </button>
       </header>
 
       <section className="task-stage" aria-labelledby="practice-task-title">
-        <p className="eyebrow">Сыграйте интервал</p>
+        <p className="eyebrow">{t("practice.intervalPrompt")}</p>
         <p aria-atomic="true" aria-live="assertive" className="visually-hidden">
-          Задание: {rootName}, {intervalName}
+          {t("practice.promptLive")} {rootName}, {intervalName}
         </p>
         <h1
           className="practice-root"
@@ -317,7 +329,8 @@ export function PracticeScreen({
         <p className="practice-interval">{intervalName}</p>
         {millisecondsUntilNextPrompt !== null && (
           <p className="prompt-countdown">
-            Новое задание через {formatDuration(millisecondsUntilNextPrompt)}
+            {t("practice.nextPromptIn")}{" "}
+            {formatDuration(millisecondsUntilNextPrompt)}
           </p>
         )}
         <p
@@ -332,7 +345,7 @@ export function PracticeScreen({
             onClick={onReturnToSetup}
             type="button"
           >
-            Вернуться к подключению
+            {t("practice.returnToConnection")}
           </button>
         )}
       </section>

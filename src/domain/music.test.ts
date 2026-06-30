@@ -20,8 +20,14 @@ describe("music catalog", () => {
     expect(INTERVALS.map((interval) => interval.semitones)).toEqual([
       1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
     ]);
-    expect(getIntervalInfo(3)?.shortName).toBe("m3");
-    expect(getIntervalInfo(7)?.shortName).toBe("P5");
+    expect(getIntervalInfo(3)?.names.ru.short).toBe("м3");
+    expect(getIntervalInfo(3)?.names.en.short).toBe("m3");
+    expect(getIntervalInfo(3)?.names.en.full).toBe("minor third");
+    expect(getIntervalInfo(7)?.names.ru.short).toBe("ч5");
+    expect(getIntervalInfo(7)?.names.en.short).toBe("P5");
+    expect(getIntervalInfo(7)?.names.en.full).toBe("perfect fifth");
+    expect(getIntervalInfo(6)?.names.ru.short).toBe("тритон");
+    expect(getIntervalInfo(6)?.names.en.full).toBe("tritone");
     expect(getIntervalInfo(0)).toBeUndefined();
   });
 
@@ -29,7 +35,6 @@ describe("music catalog", () => {
     expect(normalizePitchClass(60)).toBe(0);
     expect(normalizePitchClass(71)).toBe(11);
     expect(normalizePitchClass(-1)).toBe(11);
-    expect(getPitchClassInfo(13).latinName).toBe("C♯/D♭");
+    expect(getPitchClassInfo(13).letterName).toBe("C♯/D♭");
   });
 });
-

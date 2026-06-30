@@ -50,13 +50,13 @@ describe("describeMidiAccessFailure", () => {
     );
 
     expect(failure.status).toBe("denied");
-    expect(failure.message).toContain("настройках сайта");
+    expect(failure.message).toBe("midi.error.accessDenied");
   });
 
   it("uses a generic retry message for other failures", () => {
     expect(describeMidiAccessFailure(new Error("Disconnected"))).toEqual({
       status: "error",
-      message: "Не удалось подключиться к MIDI. Попробуйте ещё раз.",
+      message: "midi.error.connectionFailed",
     });
   });
 });

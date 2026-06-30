@@ -90,13 +90,12 @@ export function describeMidiAccessFailure(error: unknown): MidiAccessFailure {
   if (errorName === "NotAllowedError" || errorName === "SecurityError") {
     return {
       status: "denied",
-      message:
-        "Браузер не разрешил доступ к MIDI. Разрешите MIDI в настройках сайта и повторите подключение.",
+      message: "midi.error.accessDenied",
     };
   }
 
   return {
     status: "error",
-    message: "Не удалось подключиться к MIDI. Попробуйте ещё раз.",
+    message: "midi.error.connectionFailed",
   };
 }

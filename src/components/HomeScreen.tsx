@@ -1,22 +1,27 @@
 import { useEffect, useRef } from "react";
-import type { InterfaceLanguage } from "../app/appPreferences";
+import {
+  formatIntervalName,
+  formatNoteName,
+  type AppPreferences,
+} from "../app/appPreferences";
 import { getText } from "../app/i18n";
 
 type HomeScreenProps = {
-  language: InterfaceLanguage;
+  preferences: AppPreferences;
   onOpenIntervalTraining: () => void;
   onOpenNoteTraining: () => void;
   onOpenSettings: () => void;
 };
 
 export function HomeScreen({
-  language,
+  preferences,
   onOpenIntervalTraining,
   onOpenNoteTraining,
   onOpenSettings,
 }: HomeScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const t = (key: Parameters<typeof getText>[1]) => getText(language, key);
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -62,7 +67,11 @@ export function HomeScreen({
               {t("common.available")}
             </span>
             <span aria-hidden="true" className="training-mode-symbol">
-              m3
+              {formatIntervalName(
+                3,
+                preferences.intervalNotation,
+                preferences.interfaceLanguage,
+              )}
             </span>
             <span className="training-mode-title">
               {t("home.intervals.title")}
@@ -84,7 +93,11 @@ export function HomeScreen({
               {t("common.available")}
             </span>
             <span aria-hidden="true" className="training-mode-symbol">
-              {language === "ru" ? "До" : "C"}
+              {formatNoteName(
+                0,
+                preferences.noteNotation,
+                preferences.interfaceLanguage,
+              )}
             </span>
             <span className="training-mode-title">
               {t("home.notes.title")}

@@ -1,4 +1,5 @@
 import { formatNoteName, type AppPreferences } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import {
   isNoteTrainingConfigValid,
   type NoteTrainingConfig,
@@ -18,46 +19,62 @@ export function NoteStartPanel({
   onStart,
   preferences,
 }: NoteStartPanelProps) {
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
   const configIsValid = isNoteTrainingConfigValid(config);
   const midiIsReady = midiStatus === "ready";
   const canStart = configIsValid && midiIsReady;
   const noteNames = config.pitchClasses
-    .map((pitchClass) => formatNoteName(pitchClass, preferences.noteNotation))
+    .map((pitchClass) =>
+      formatNoteName(
+        pitchClass,
+        preferences.noteNotation,
+        preferences.interfaceLanguage,
+      ),
+    )
     .join(", ");
 
-  let readinessMessage = "Все готово к тренировке.";
+  let readinessMessage = t("setup.startReady");
 
   if (!configIsValid) {
-    readinessMessage = "Исправьте отмеченные настройки.";
+    readinessMessage = t("setup.startFixSettings");
   } else if (!midiIsReady) {
-    readinessMessage = "Сначала подключите MIDI-клавиатуру.";
+    readinessMessage = t("setup.startConnectMidi");
   }
 
   return (
     <aside className="start-card" aria-labelledby="note-start-title">
       <div>
-        <p className="eyebrow">Готовность</p>
-        <h2 id="note-start-title">Начать тренировку</h2>
+        <p className="eyebrow">{t("common.ready")}</p>
+        <h2 id="note-start-title">{t("setup.start")}</h2>
       </div>
 
       <dl className="start-summary">
         <div>
-          <dt>Ноты</dt>
-          <dd>{noteNames || "Не выбраны"}</dd>
+          <dt>{t("common.notes")}</dt>
+          <dd>{noteNames || t("common.notSelected")}</dd>
         </div>
         <div>
-          <dt>Режим</dt>
-          <dd>{config.mode === "timed" ? "На время" : "Последовательный"}</dd>
+          <dt>{t("setup.summary.mode")}</dt>
+          <dd>
+            {config.mode === "timed"
+              ? t("common.timed")
+              : t("common.sequential")}
+          </dd>
         </div>
         {config.mode === "timed" && (
           <div>
-            <dt>На ноту</dt>
-            <dd>{config.promptPeriodSeconds} сек</dd>
+            <dt>{t("setup.summary.perNote")}</dt>
+            <dd>
+              {config.promptPeriodSeconds} {t("common.secondsShort")}
+            </dd>
           </div>
         )}
         <div>
-          <dt>Длительность</dt>
-          <dd>{config.durationMinutes} мин</dd>
+          <dt>{t("common.duration")}</dt>
+          <dd>
+            {config.durationMinutes} {t("common.minutesShort")}
+          </dd>
         </div>
       </dl>
 
@@ -76,7 +93,7 @@ export function NoteStartPanel({
         onClick={onStart}
         type="button"
       >
-        Начать тренировку
+        {t("setup.start")}
       </button>
     </aside>
   );

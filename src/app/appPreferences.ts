@@ -6,7 +6,7 @@ import {
   type SynthSettings,
 } from "../audio/synthSettings";
 
-export type NoteNotation = "russian" | "latin";
+export type NoteNotation = "solfege" | "letter";
 export type IntervalNotation = "name" | "symbol";
 export type InterfaceLanguage = "ru" | "en";
 
@@ -19,7 +19,7 @@ export type AppPreferences = {
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   interfaceLanguage: "ru",
-  noteNotation: "russian",
+  noteNotation: "solfege",
   intervalNotation: "name",
   synth: DEFAULT_SYNTH_SETTINGS,
 };
@@ -32,18 +32,34 @@ function isInterfaceLanguage(value: unknown): value is InterfaceLanguage {
   return value === "ru" || value === "en";
 }
 
+function parseNoteNotation(value: unknown): NoteNotation | null {
+  if (value === "solfege" || value === "russian") {
+    return "solfege";
+  }
+
+  if (value === "letter" || value === "latin") {
+    return "letter";
+  }
+
+  return null;
+}
+
 export function formatNoteName(
   pitchClass: number,
   notation: NoteNotation,
+  language: InterfaceLanguage,
 ): string {
   const note = getPitchClassInfo(pitchClass);
 
-  return notation === "russian" ? note.russianName : note.latinName;
+  return notation === "solfege"
+    ? note.solfegeNames[language]
+    : note.letterName;
 }
 
 export function formatIntervalName(
   semitones: number,
   notation: IntervalNotation,
+  language: InterfaceLanguage,
 ): string {
   const interval = getIntervalInfo(semitones);
 
@@ -51,7 +67,9 @@ export function formatIntervalName(
     return "";
   }
 
-  return notation === "name" ? interval.russianName : interval.shortName;
+  return notation === "name"
+    ? interval.names[language].full
+    : interval.names[language].short;
 }
 
 export function loadAppPreferencesFromStorage(
@@ -71,11 +89,15 @@ export function loadAppPreferencesFromStorage(
       parsedPreferences !== null &&
       "noteNotation" in parsedPreferences &&
       "intervalNotation" in parsedPreferences &&
-      (parsedPreferences.noteNotation === "russian" ||
-        parsedPreferences.noteNotation === "latin") &&
       (parsedPreferences.intervalNotation === "name" ||
         parsedPreferences.intervalNotation === "symbol")
     ) {
+      const noteNotation = parseNoteNotation(parsedPreferences.noteNotation);
+
+      if (!noteNotation) {
+        return { ...DEFAULT_APP_PREFERENCES };
+      }
+
       const storedSynth =
         "synth" in parsedPreferences &&
         typeof parsedPreferences.synth === "object" &&
@@ -89,7 +111,7 @@ export function loadAppPreferencesFromStorage(
           isInterfaceLanguage(parsedPreferences.interfaceLanguage)
             ? parsedPreferences.interfaceLanguage
             : DEFAULT_APP_PREFERENCES.interfaceLanguage,
-        noteNotation: parsedPreferences.noteNotation,
+        noteNotation,
         intervalNotation: parsedPreferences.intervalNotation,
         synth: {
           enabled:

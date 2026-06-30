@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { AppPreferences } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import type { NoteTrainingConfig } from "../domain/noteTrainingConfig";
 import type { MidiInputInfo, MidiStatus } from "../midi/useMidiInput";
 import { MidiConnectionCard } from "./MidiConnectionCard";
@@ -38,6 +39,8 @@ export function NoteSetupScreen({
   preferences,
 }: NoteSetupScreenProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -47,14 +50,11 @@ export function NoteSetupScreen({
     <main className="app-shell">
       <header className="hero">
         <div>
-          <p className="eyebrow">Поиск одиночных нот</p>
+          <p className="eyebrow">{t("common.noteTraining")}</p>
           <h1 ref={titleRef} tabIndex={-1}>
-            Настройте ноты
+            {t("setup.note.title")}
           </h1>
-          <p className="hero-copy">
-            Подключите MIDI-клавиатуру, выберите ноты и находите каждую из них
-            в любой октаве тренировочного диапазона.
-          </p>
+          <p className="hero-copy">{t("setup.note.copy")}</p>
         </div>
         <div className="hero-actions">
           <button
@@ -62,14 +62,14 @@ export function NoteSetupScreen({
             onClick={onReturnHome}
             type="button"
           >
-            На главный экран
+            {t("common.backToHome")}
           </button>
           <button
             className="secondary-button"
             onClick={onOpenSettings}
             type="button"
           >
-            Настройки приложения
+            {t("common.appSettings")}
           </button>
         </div>
       </header>
@@ -100,8 +100,7 @@ export function NoteSetupScreen({
       </div>
 
       <footer className="app-footer">
-        MIDI-данные обрабатываются только в этом браузере и никуда не
-        отправляются.
+        {t("setup.footer")}
       </footer>
     </main>
   );

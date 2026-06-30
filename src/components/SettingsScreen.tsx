@@ -39,6 +39,20 @@ export function SettingsScreen({
   const titleRef = useRef<HTMLHeadingElement>(null);
   const t = (key: Parameters<typeof getText>[1]) =>
     getText(preferences.interfaceLanguage, key);
+  const solfegeExample =
+    preferences.interfaceLanguage === "ru"
+      ? "До, До♯/Ре♭, Ре"
+      : "Do, Do♯/Re♭, Re";
+  const fullIntervalExample = `${formatIntervalName(
+    3,
+    "name",
+    preferences.interfaceLanguage,
+  )}, ${formatIntervalName(7, "name", preferences.interfaceLanguage)}`;
+  const shortIntervalExample = `${formatIntervalName(
+    3,
+    "symbol",
+    preferences.interfaceLanguage,
+  )}, ${formatIntervalName(7, "symbol", preferences.interfaceLanguage)}`;
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -128,28 +142,28 @@ export function SettingsScreen({
           <div className="preference-grid">
             <label className="preference-option">
               <input
-                checked={preferences.noteNotation === "russian"}
+                checked={preferences.noteNotation === "solfege"}
                 name="note-notation"
                 onChange={() =>
-                  onChange({ ...preferences, noteNotation: "russian" })
+                  onChange({ ...preferences, noteNotation: "solfege" })
                 }
                 type="radio"
-                value="russian"
+                value="solfege"
               />
               <span>
                 <strong>{t("settings.noteNotation.russian")}</strong>
-                <small>До, До♯/Ре♭, Ре</small>
+                <small>{solfegeExample}</small>
               </span>
             </label>
             <label className="preference-option">
               <input
-                checked={preferences.noteNotation === "latin"}
+                checked={preferences.noteNotation === "letter"}
                 name="note-notation"
                 onChange={() =>
-                  onChange({ ...preferences, noteNotation: "latin" })
+                  onChange({ ...preferences, noteNotation: "letter" })
                 }
                 type="radio"
-                value="latin"
+                value="letter"
               />
               <span>
                 <strong>{t("settings.noteNotation.latin")}</strong>
@@ -174,7 +188,7 @@ export function SettingsScreen({
               />
               <span>
                 <strong>{t("settings.intervalNotation.names")}</strong>
-                <small>малая терция, чистая квинта</small>
+                <small>{fullIntervalExample}</small>
               </span>
             </label>
             <label className="preference-option">
@@ -189,7 +203,7 @@ export function SettingsScreen({
               />
               <span>
                 <strong>{t("settings.intervalNotation.symbols")}</strong>
-                <small>m3, P5</small>
+                <small>{shortIntervalExample}</small>
               </span>
             </label>
           </div>
@@ -198,8 +212,17 @@ export function SettingsScreen({
         <div className="preference-preview" aria-live="polite">
           <span>{t("settings.preview.label")}</span>
           <strong>
-            {formatNoteName(1, preferences.noteNotation)} —{" "}
-            {formatIntervalName(3, preferences.intervalNotation)}
+            {formatNoteName(
+              1,
+              preferences.noteNotation,
+              preferences.interfaceLanguage,
+            )}{" "}
+            —{" "}
+            {formatIntervalName(
+              3,
+              preferences.intervalNotation,
+              preferences.interfaceLanguage,
+            )}
           </strong>
         </div>
       </section>

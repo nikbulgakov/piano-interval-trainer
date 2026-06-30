@@ -38,22 +38,22 @@ export function validateTrainingConfig(
   const errors: TrainingConfigErrors = {};
 
   if (config.pitchClasses.length === 0) {
-    errors.pitchClasses = "Выберите хотя бы одну исходную ноту.";
+    errors.pitchClasses = "validation.intervalPitchClassesRequired";
   }
 
   if (config.intervalSemitones.length === 0) {
-    errors.intervalSemitones = "Выберите хотя бы один интервал.";
+    errors.intervalSemitones = "validation.intervalsRequired";
   }
 
   if (!isIntegerInRange(config.durationMinutes, 1, 60)) {
-    errors.durationMinutes = "Укажите целое число от 1 до 60 минут.";
+    errors.durationMinutes = "validation.durationMinutes";
   }
 
   if (
     config.mode === "timed" &&
     !isIntegerInRange(config.promptPeriodSeconds, 1, 30)
   ) {
-    errors.promptPeriodSeconds = "Укажите целое число от 1 до 30 секунд.";
+    errors.promptPeriodSeconds = "validation.promptPeriodSeconds";
   }
 
   return errors;
@@ -62,4 +62,3 @@ export function validateTrainingConfig(
 export function isTrainingConfigValid(config: TrainingConfig): boolean {
   return Object.keys(validateTrainingConfig(config)).length === 0;
 }
-

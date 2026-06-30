@@ -19,9 +19,9 @@ describe("keyboard model", () => {
   });
 
   it("uses pitch-class names independently from an octave", () => {
-    expect(getPitchClassInfo(48).latinName).toBe("C");
-    expect(getPitchClassInfo(60).russianName).toBe("До");
-    expect(getPitchClassInfo(61).latinName).toBe("C♯/D♭");
+    expect(getPitchClassInfo(48).letterName).toBe("C");
+    expect(getPitchClassInfo(60).solfegeNames.ru).toBe("До");
+    expect(getPitchClassInfo(61).letterName).toBe("C♯/D♭");
   });
 
   it("checks the configured MIDI range boundaries", () => {

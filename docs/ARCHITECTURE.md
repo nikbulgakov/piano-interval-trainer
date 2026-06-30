@@ -36,7 +36,7 @@ Web Audio также изолируется от доменной логики. 
 
 Отображение enharmonic-варианта для текста активного задания находится в presentation-layer. Session state хранит `taskSerial`, который увеличивается только при показе нового задания; это позволяет выбрать случайную подпись один раз и не связывает проверку ответа с русскими или латинскими строками.
 
-Локализация интерфейса строится на typed dictionary без внешней i18n-библиотеки. Язык интерфейса хранится в `AppPreferences` отдельно от настроек отображения нот и интервалов. Компоненты получают язык из `preferences.interfaceLanguage` и читают тексты через helper `getText(language, key)`.
+Локализация интерфейса строится на typed dictionary без внешней i18n-библиотеки. Язык интерфейса хранится в `AppPreferences` отдельно от настроек отображения нот и интервалов. Компоненты получают язык из `preferences.interfaceLanguage` и читают тексты через helper `getText(language, key)`. Все пользовательские строки текущих экранов проходят через этот слой. Форматирование нот и интервалов дополнительно использует `interfaceLanguage`, потому что сольфеджио, полные названия и сокращения интервалов локализованы для русского и английского интерфейса.
 
 ## 3. Целевая структура исходников
 
@@ -102,8 +102,10 @@ type PitchClass = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 
 type Interval = {
   semitones: number;
-  shortName: string;
-  russianName: string;
+  names: {
+    ru: { full: string; short: string };
+    en: { full: string; short: string };
+  };
 };
 
 type TrainingMode =
@@ -136,7 +138,7 @@ type Task = {
 
 Ответ корректен, если множество удерживаемых нот точно равно одной допустимой паре.
 
-Текстовое имя ноты и интервала используется только представлением. Проверка всегда основана на pitch class и числе полутонов.
+Текстовое имя ноты и интервала используется только представлением. Проверка всегда основана на pitch class и числе полутонов. Для нот источник истины — pitch class; строки выбираются через `formatNoteName(pitchClass, noteNotation, interfaceLanguage)` или `formatPracticeNoteDisplay(display, noteNotation, interfaceLanguage)`. Для интервалов источник истины по-прежнему `semitones`; локализованные строки выбираются только в presentation/app layer через `formatIntervalName(semitones, intervalNotation, interfaceLanguage)`.
 
 Для одиночной ноты ответ корректен, если внутри диапазона удерживается ровно одна MIDI-клавиша и её pitch class равен заданному. Отдельные `noteTasks` и `noteSequentialSession` не зависят от интервальных структур и Web MIDI.
 

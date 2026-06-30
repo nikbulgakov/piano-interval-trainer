@@ -30,7 +30,7 @@ export type MidiInputInfo = {
 function toInputInfo(input: MidiInputLike): MidiInputInfo {
   return {
     id: input.id,
-    name: input.name?.trim() || "MIDI-устройство без названия",
+    name: input.name?.trim() || "",
     manufacturer: input.manufacturer?.trim() || "",
   };
 }
@@ -88,9 +88,7 @@ export function useMidiInput() {
     });
 
     if (storedInputId && nextInputs.length > 0 && !nextPorts.has(storedInputId)) {
-      setErrorMessage(
-        "Сохранённый MIDI-вход не найден. Выбран первый доступный вход.",
-      );
+      setErrorMessage("midi.error.storedInputMissing");
     } else {
       setErrorMessage("");
     }
@@ -186,9 +184,7 @@ export function useMidiInput() {
       .catch(() => {
         if (isCurrentPort) {
           setStatus("error");
-          setErrorMessage(
-            "Не удалось открыть выбранный MIDI-вход. Переподключите устройство и попробуйте ещё раз.",
-          );
+          setErrorMessage("midi.error.openInputFailed");
         }
       });
 

@@ -1,9 +1,12 @@
 import { getPitchClassInfo } from "../domain/music";
-import type { NoteNotation } from "./appPreferences";
+import type { InterfaceLanguage, NoteNotation } from "./appPreferences";
 
 export type PracticeNoteDisplay = {
-  latinName: string;
-  russianName: string;
+  letterName: string;
+  solfegeNames: {
+    ru: string;
+    en: string;
+  };
 };
 
 function splitNameVariants(name: string): string[] {
@@ -25,21 +28,26 @@ export function createPracticeNoteDisplay(
   random: () => number = Math.random,
 ): PracticeNoteDisplay {
   const note = getPitchClassInfo(pitchClass);
-  const latinVariants = splitNameVariants(note.latinName);
-  const variantIndex =
-    latinVariants.length > 1
-      ? Math.floor(random() * latinVariants.length)
-      : 0;
+  const letterVariants = splitNameVariants(note.letterName);
+  const variantIndex = letterVariants.length > 1
+    ? Math.floor(random() * letterVariants.length)
+    : 0;
 
   return {
-    latinName: pickSingleName(note.latinName, variantIndex),
-    russianName: pickSingleName(note.russianName, variantIndex),
+    letterName: pickSingleName(note.letterName, variantIndex),
+    solfegeNames: {
+      ru: pickSingleName(note.solfegeNames.ru, variantIndex),
+      en: pickSingleName(note.solfegeNames.en, variantIndex),
+    },
   };
 }
 
 export function formatPracticeNoteDisplay(
   display: PracticeNoteDisplay,
   notation: NoteNotation,
+  language: InterfaceLanguage,
 ): string {
-  return notation === "russian" ? display.russianName : display.latinName;
+  return notation === "solfege"
+    ? display.solfegeNames[language]
+    : display.letterName;
 }

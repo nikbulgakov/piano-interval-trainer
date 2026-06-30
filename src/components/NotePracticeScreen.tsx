@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppPreferences } from "../app/appPreferences";
+import { getText } from "../app/i18n";
 import {
   createPracticeNoteDisplay,
   formatPracticeNoteDisplay,
@@ -53,6 +54,8 @@ export function NotePracticeScreen({
   onReturnToSetup,
   preferences,
 }: NotePracticeScreenProps) {
+  const t = (key: Parameters<typeof getText>[1]) =>
+    getText(preferences.interfaceLanguage, key);
   const [timing] = useState(() => {
     const startedAt = performance.now();
 
@@ -110,7 +113,11 @@ export function NotePracticeScreen({
     [noteDisplayKey, targetPitchClass],
   );
   const noteName = noteDisplay
-    ? formatPracticeNoteDisplay(noteDisplay, preferences.noteNotation)
+    ? formatPracticeNoteDisplay(
+        noteDisplay,
+        preferences.noteNotation,
+        preferences.interfaceLanguage,
+      )
     : "";
 
   useEffect(() => {
@@ -227,23 +234,23 @@ export function NotePracticeScreen({
     return () => window.clearTimeout(settleTimer);
   }, [activeNotes, config.pitchClasses, midiIsReady, timing.endsAt]);
 
-  let feedbackText = "Нажмите одну клавишу с этой нотой.";
+  let feedbackText = t("practice.feedback.noteInitial");
   let feedbackTone = "neutral";
 
   if (!midiIsReady) {
-    feedbackText = "MIDI-клавиатура отключена. Подключите её снова.";
+    feedbackText = t("practice.feedback.midiDisconnected");
     feedbackTone = "warning";
   } else if (runtime.session.feedback === "correct") {
     feedbackText =
       runtime.mode === "timed"
-        ? "Правильно. Следующая нота уже на экране — отпустите клавишу."
-        : "Правильно. Отпустите клавишу для следующего задания.";
+        ? t("practice.feedback.noteTimedCorrect")
+        : t("practice.feedback.noteSequentialCorrect");
     feedbackTone = "correct";
   } else if (runtime.session.feedback === "incorrect") {
-    feedbackText = "Не та нота — отпустите клавиши и попробуйте ещё.";
+    feedbackText = t("practice.feedback.noteIncorrect");
     feedbackTone = "incorrect";
   } else if (runtime.session.phase === "waiting-for-release") {
-    feedbackText = "Отпустите клавиши, чтобы начать.";
+    feedbackText = t("practice.feedback.releaseToStart");
   }
 
   return (
@@ -251,20 +258,24 @@ export function NotePracticeScreen({
       <header className="practice-topbar">
         <div>
           <p className="eyebrow">
-            Поиск нот ·{" "}
+            {t("common.noteTraining")} ·{" "}
             {runtime.mode === "timed"
-              ? "Режим на время"
-              : "Последовательный режим"}
+              ? t("common.timedMode")
+              : t("common.sequentialMode")}
           </p>
           <p className="practice-score">
-            Правильно: {runtime.session.correctAnswers} · Ошибок:{" "}
+            {t("common.scoreCorrect")}: {runtime.session.correctAnswers} ·{" "}
+            {t("common.errors")}:{" "}
             {runtime.session.wrongAttempts}
             {runtime.mode === "timed" && (
-              <> · Пропусков: {runtime.session.missedTasks}</>
+              <>
+                {" "}
+                · {t("common.missed")}: {runtime.session.missedTasks}
+              </>
             )}
           </p>
         </div>
-        <time className="session-timer" aria-label="Оставшееся время">
+        <time className="session-timer" aria-label={t("practice.remainingTime")}>
           {formatDuration(remainingMilliseconds)}
         </time>
         <button
@@ -272,14 +283,14 @@ export function NotePracticeScreen({
           onClick={() => finish(true)}
           type="button"
         >
-          Завершить
+          {t("common.stop")}
         </button>
       </header>
 
       <section className="task-stage" aria-labelledby="note-practice-title">
-        <p className="eyebrow">Найдите ноту</p>
+        <p className="eyebrow">{t("practice.findNote")}</p>
         <p aria-atomic="true" aria-live="assertive" className="visually-hidden">
-          Задание: {noteName}
+          {t("practice.promptLive")} {noteName}
         </p>
         <h1
           className="practice-root note-practice-root"
@@ -291,10 +302,10 @@ export function NotePracticeScreen({
         </h1>
         <p className="note-practice-hint">
           {runtime.mode === "timed" && millisecondsUntilNextPrompt !== null
-            ? `Нажмите одну клавишу в любой октаве · осталось ${formatDuration(
+            ? `${t("practice.noteTimedHintPrefix")} ${formatDuration(
                 millisecondsUntilNextPrompt,
               )}`
-            : "Нажмите одну клавишу в любой октаве."}
+            : t("practice.noteHint")}
         </p>
         <p
           className={`practice-feedback feedback-${feedbackTone}`}
@@ -308,7 +319,7 @@ export function NotePracticeScreen({
             onClick={onReturnToSetup}
             type="button"
           >
-            Вернуться к подключению
+            {t("practice.returnToConnection")}
           </button>
         )}
       </section>

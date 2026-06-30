@@ -184,14 +184,18 @@ export function App() {
       <ResultsScreen
         exerciseLabel={
           screen.returnTo === "note-setup"
-            ? "Тренировка нот завершена"
-            : "Тренировка интервалов завершена"
+            ? getText(preferences.interfaceLanguage, "common.noteTraining")
+            : getText(preferences.interfaceLanguage, "common.intervalTraining")
         }
+        language={preferences.interfaceLanguage}
         onReturn={() => setScreen({ kind: screen.returnTo })}
         returnLabel={
           screen.returnTo === "note-setup"
-            ? "К настройке нот"
-            : "К настройке интервалов"
+            ? getText(preferences.interfaceLanguage, "common.backToNoteSetup")
+            : getText(
+                preferences.interfaceLanguage,
+                "common.backToIntervalSetup",
+              )
         }
         showMissedTasks={screen.showMissedTasks}
         summary={screen.summary}
@@ -202,12 +206,12 @@ export function App() {
   if (screen.kind === "home") {
     return (
       <HomeScreen
-        language={preferences.interfaceLanguage}
         onOpenIntervalTraining={() => setScreen({ kind: "interval-setup" })}
         onOpenNoteTraining={() => setScreen({ kind: "note-setup" })}
         onOpenSettings={() =>
           setScreen({ kind: "settings", returnTo: "home" })
         }
+        preferences={preferences}
       />
     );
   }
